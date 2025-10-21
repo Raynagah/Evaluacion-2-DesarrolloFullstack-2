@@ -41,7 +41,7 @@ function FeaturedProducts() {
           ))}
         </div>
         <div className="text-center mt-4">
-          <a href="tienda.html" className="btn btn-outline-purple">Ver Todos los Productos</a>
+          <a href="/tienda" className="btn btn-outline-purple">Ver Todos los Productos</a>
         </div>
       </div>
     </section>

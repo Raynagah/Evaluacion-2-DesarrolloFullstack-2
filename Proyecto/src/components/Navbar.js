@@ -55,6 +55,14 @@ function Navbar() {
                         <li className="nav-item"><Link className="nav-link" to="/">Inicio</Link></li>
                         <li className="nav-item"><Link className="nav-link" to="/tienda">Tienda</Link></li>
                         <li className="nav-item"><Link className="nav-link" to="/blogs">Blogs</Link></li>
+                        {/* --- ENLACE AL CARRITO AHORA ES VISIBLE --- */}
+                        <li className="nav-item">
+                            <Link className="nav-link" to="/carrito">
+                                Carrito
+                                {/* Este contador necesitará un estado global para ser dinámico */}
+                                <span className="badge bg-light text-dark ms-1">0</span> 
+                            </Link>
+                        </li>
                         <li className="nav-item"><Link className="nav-link" to="/login">Ingresar</Link></li>
                     </ul>
                 </div>

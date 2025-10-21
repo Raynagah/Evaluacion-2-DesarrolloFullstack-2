@@ -16,10 +16,10 @@ function Footer() {
           <div className="col-md-4">
             <h5>Enlaces Rápidos</h5>
             <ul className="list-unstyled">
-              <li><a href="index.html" className="text-white">Inicio</a></li>
-              <li><a href="tienda.html" className="text-white">Productos</a></li>
-              <li><a href="contacto.html" className="text-white">Contacto</a></li>
-              <li><a href="nosotros.html" className="text-white">Nosotros</a></li>
+              <li><a href="/" className="text-white">Inicio</a></li>
+              <li><a href="tienda" className="text-white">Productos</a></li>
+              <li><a href="contacto" className="text-white">Contacto</a></li>
+              <li><a href="nosotros" className="text-white">Nosotros</a></li>
             </ul>
           </div>
         </div>

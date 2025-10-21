@@ -1,32 +1,65 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom'; // Para el botón de "Cancelar"
+import { Link } from 'react-router-dom';
 
 function Registro() {
-  // Creamos un estado para cada campo del formulario
-  const [rut, setRut] = useState('');
-  const [nombre, setNombre] = useState('');
-  const [apellidos, setApellidos] = useState('');
-  const [correo, setCorreo] = useState('');
-  const [confirmarCorreo, setConfirmarCorreo] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmarPassword, setConfirmarPassword] = useState('');
-  const [direccion, setDireccion] = useState('');
-  // ... puedes añadir más estados para fecha, región, comuna, etc.
+  // Estado para los campos del formulario
+  const [formData, setFormData] = useState({
+    rut: '',
+    nombre: '',
+    apellidos: '',
+    correo: '',
+    confirmarCorreo: '',
+    password: '',
+    confirmarPassword: '',
+    direccion: ''
+  });
+
+  // 1. Un solo estado para manejar todos los errores de validación
+  const [errors, setErrors] = useState({});
+
+  // Función para manejar los cambios en cualquier input
+  const handleChange = (e) => {
+    const { id, value } = e.target;
+    setFormData(prevState => ({
+      ...prevState,
+      [id]: value
+    }));
+  };
 
   // Función que se ejecuta al enviar el formulario
   const handleSubmit = (event) => {
     event.preventDefault(); // Previene que la página se recargue
+
+    // 2. Lógica de validación
+    const newErrors = {};
+    if (formData.correo !== formData.confirmarCorreo) {
+      newErrors.correo = 'Los correos electrónicos no coinciden.';
+    }
+    if (formData.password !== formData.confirmarPassword) {
+      newErrors.password = 'Las contraseñas no coinciden.';
+    }
+
+    // 3. Si hay errores, los guardamos en el estado y detenemos el envío
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return; // Detiene la ejecución de la función aquí
+    }
+
+    // Si no hay errores, limpiamos el estado de errores y continuamos
+    setErrors({});
     
-    // Aquí iría tu lógica de validación y registro
     console.log('Datos del formulario:', {
-      rut,
-      nombre,
-      apellidos,
-      correo,
-      password,
-      direccion
+      rut: formData.rut,
+      nombre: formData.nombre,
+      apellidos: formData.apellidos,
+      correo: formData.correo,
+      password: formData.password,
+      direccion: formData.direccion
     });
-    alert('¡Registro enviado! Revisa la consola para ver los datos.');
+
+    // Es mejor no usar 'alert' en React, pero lo mantenemos si lo necesitas.
+    // Una mejor opción sería mostrar un mensaje de éxito en la UI.
+    alert('¡Registro enviado con éxito!');
   };
 
   return (
@@ -39,24 +72,21 @@ function Registro() {
                 <h4 className="mb-0">Registro</h4>
               </div>
               <div className="card-body p-4">
-                {/* Usamos el evento onSubmit en el formulario */}
                 <form onSubmit={handleSubmit}>
-                  {/* RUT y Tipo de Usuario */}
+                  {/* RUT */}
                   <div className="row mb-3">
                     <div className="col-md-6">
                       <label htmlFor="rut" className="form-label fw-bold">RUT *</label>
-                      {/* El valor del input está ligado al estado y se actualiza con onChange */}
                       <input 
                         type="text" 
                         className="form-control" 
                         id="rut" 
                         placeholder="12345678-9" 
                         required 
-                        value={rut} 
-                        onChange={(e) => setRut(e.target.value)} 
+                        value={formData.rut} 
+                        onChange={handleChange} 
                       />
                     </div>
-                    {/* ... otros campos siguen el mismo patrón ... */}
                   </div>
                   
                   {/* Nombre y Apellidos */}
@@ -68,8 +98,8 @@ function Registro() {
                             className="form-control" 
                             id="nombre" 
                             required 
-                            value={nombre}
-                            onChange={(e) => setNombre(e.target.value)}
+                            value={formData.nombre}
+                            onChange={handleChange}
                         />
                     </div>
                     <div className="col-md-6">
@@ -79,8 +109,8 @@ function Registro() {
                             className="form-control" 
                             id="apellidos" 
                             required 
-                            value={apellidos}
-                            onChange={(e) => setApellidos(e.target.value)}
+                            value={formData.apellidos}
+                            onChange={handleChange}
                         />
                     </div>
                   </div>
@@ -91,23 +121,25 @@ function Registro() {
                         <label htmlFor="correo" className="form-label fw-bold">Correo *</label>
                         <input 
                             type="email" 
-                            className="form-control" 
+                            className={`form-control ${errors.correo ? 'is-invalid' : ''}`}
                             id="correo" 
                             required 
-                            value={correo}
-                            onChange={(e) => setCorreo(e.target.value)}
+                            value={formData.correo}
+                            onChange={handleChange}
                         />
                     </div>
                     <div className="col-md-6">
                         <label htmlFor="confirmarCorreo" className="form-label fw-bold">Confirmar Correo *</label>
                         <input 
                             type="email" 
-                            className="form-control" 
+                            className={`form-control ${errors.correo ? 'is-invalid' : ''}`}
                             id="confirmarCorreo" 
                             required 
-                            value={confirmarCorreo}
-                            onChange={(e) => setConfirmarCorreo(e.target.value)}
+                            value={formData.confirmarCorreo}
+                            onChange={handleChange}
                         />
+                        {/* 4. Mostramos el mensaje de error si existe */}
+                        {errors.correo && <div className="invalid-feedback">{errors.correo}</div>}
                     </div>
                   </div>
 
@@ -117,23 +149,24 @@ function Registro() {
                         <label htmlFor="password" className="form-label fw-bold">Contraseña *</label>
                         <input 
                             type="password" 
-                            className="form-control" 
+                            className={`form-control ${errors.password ? 'is-invalid' : ''}`}
                             id="password" 
                             required 
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
+                            value={formData.password}
+                            onChange={handleChange}
                         />
                     </div>
                     <div className="col-md-6">
                         <label htmlFor="confirmarPassword" className="form-label fw-bold">Confirmar Contraseña *</label>
                         <input 
                             type="password" 
-                            className="form-control" 
+                            className={`form-control ${errors.password ? 'is-invalid' : ''}`}
                             id="confirmarPassword" 
                             required 
-                            value={confirmarPassword}
-                            onChange={(e) => setConfirmarPassword(e.target.value)}
+                            value={formData.confirmarPassword}
+                            onChange={handleChange}
                         />
+                        {errors.password && <div className="invalid-feedback">{errors.password}</div>}
                     </div>
                   </div>
 
@@ -145,8 +178,8 @@ function Registro() {
                           id="direccion" 
                           rows="2" 
                           required
-                          value={direccion}
-                          onChange={(e) => setDireccion(e.target.value)}
+                          value={formData.direccion}
+                          onChange={handleChange}
                       ></textarea>
                   </div>
 

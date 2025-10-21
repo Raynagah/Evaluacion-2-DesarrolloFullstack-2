@@ -12,6 +12,10 @@ import Registro from './pages/Registro';
 import Login from './pages/Login';
 import Blogs from './pages/Blogs';
 import Carrito from './pages/Carrito';
+import BlogArmani from './pages/BlogArmani';
+import BlogCarolina from './pages/BlogCarolina';
+import Nosotros from './pages/Nosotros';
+import Contacto from './pages/Contacto';
 // ...otras páginas de cliente
 
 // Páginas de Administrador
@@ -33,6 +37,10 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/blogs" element={<Blogs />} />
           <Route path="/carrito" element={<Carrito />} />
+          <Route path="blog/armani" element={<BlogArmani />} />
+          <Route path="blog/carolina" element={<BlogCarolina />} />
+          <Route path="/nosotros" element={<Nosotros />} />
+          <Route path="/contacto" element={<Contacto />} />
           {/* ...otras rutas de cliente */}
 
           {/* Rutas de Administrador */}
