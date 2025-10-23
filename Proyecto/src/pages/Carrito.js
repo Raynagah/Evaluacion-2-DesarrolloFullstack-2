@@ -1,50 +1,46 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useCart } from '../context/CartContext'; // <--- 1. Importa el hook
 
-// Datos de ejemplo. En una aplicación real, esto vendría de un estado global (Context API o Redux).
-const initialItems = [
-  { id: 1, name: 'Perfume "Good Girl"', price: 85000, quantity: 1, image: 'https://placehold.co/100x100/d1c4e9/4a148c?text=Good+Girl' },
-  { id: 2, name: 'Perfume "212 VIP"', price: 78000, quantity: 2, image: 'https://placehold.co/100x100/d1c4e9/4a148c?text=212+VIP' },
-  { id: 3, name: 'Perfume "Armani Code"', price: 92000, quantity: 1, image: 'https://placehold.co/100x100/c7a5c8/4a148c?text=Armani+Code' },
-];
+// --- 2. ELIMINA 'initialItems' ---
+// const initialItems = [ ... ];
 
 function Carrito() {
-  // 1. Estado para manejar los artículos del carrito
-  const [items, setItems] = useState(initialItems);
+  // 3. Obtén todo lo necesario del Contexto
+  const { cartItems, updateQuantity, removeFromCart, clearCart } = useCart();
   
-  // 2. Estado para el resumen del pedido
+  // 4. ELIMINA el estado local de 'items'
+  // const [items, setItems] = useState(initialItems);
+  
   const [summary, setSummary] = useState({ subtotal: 0, envio: 0, total: 0 });
 
-  // 3. Efecto para recalcular el total cada vez que los artículos cambien
   useEffect(() => {
-    const subtotal = items.reduce((acc, item) => acc + item.price * item.quantity, 0);
-    const envio = subtotal > 50000 ? 0 : 4500; // Envío gratis sobre $50.000
+    // 5. Basa el cálculo en 'cartItems' (del contexto)
+    const subtotal = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
+    const envio = subtotal > 50000 ? 0 : 4500;
     const total = subtotal + envio;
     setSummary({ subtotal, envio, total });
-  }, [items]);
+  }, [cartItems]); // <--- Depende de 'cartItems'
 
-  // Formateador de moneda
   const formatCurrency = (value) => {
     return new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP' }).format(value);
   };
 
-  // 4. Funciones para manipular el carrito
+  // 6. Funciones que llaman al contexto
   const handleQuantityChange = (id, newQuantity) => {
-    // Evita cantidades menores a 1
-    if (newQuantity < 1) return; 
-    setItems(items.map(item => item.id === id ? { ...item, quantity: newQuantity } : item));
+    updateQuantity(id, Number.parseInt(newQuantity));
   };
 
   const handleRemoveItem = (id) => {
-    setItems(items.filter(item => item.id !== id));
+    removeFromCart(id);
   };
 
   const handleClearCart = () => {
-    setItems([]);
+    clearCart();
   };
 
-  // 5. Renderizado condicional: si el carrito está vacío, muestra un mensaje
-  if (items.length === 0) {
+  // 7. Renderizado condicional basado en 'cartItems'
+  if (cartItems.length === 0) {
     return (
       <div className="container text-center my-5 py-5">
         <h2 className="text-purple mb-4">Tu Carrito está Vacío</h2>
@@ -56,33 +52,24 @@ function Carrito() {
     );
   }
 
-  // Renderizado principal si hay artículos en el carrito
+  // 8. El resto de tu JSX de Carrito
   return (
     <main className="container my-5">
-      <h2 className="text-purple mb-4">Tu Carrito de Compras</h2>
+      {/* ... (Encabezado "Tu Carrito") ... */}
       <div className="row">
-        {/* Columna de la tabla de productos */}
         <div className="col-md-8">
           <div className="card mb-4">
             <div className="card-body">
               <div className="table-responsive">
                 <table className="table align-middle">
-                  <thead>
-                    <tr>
-                      <th>Producto</th>
-                      <th>Precio</th>
-                      <th style={{ minWidth: '120px' }}>Cantidad</th>
-                      <th>Subtotal</th>
-                      <th></th>
-                    </tr>
-                  </thead>
+                  {/* ... (Tu <thead>) ... */}
                   <tbody>
-                    {/* 6. Mapeo de los artículos para crear las filas de la tabla */}
-                    {items.map(item => (
+                    {/* 9. Mapea sobre 'cartItems' del contexto */}
+                    {cartItems.map(item => (
                       <tr key={item.id}>
                         <td>
                           <div className="d-flex align-items-center">
-                            <img src={item.image} alt={item.name} width="60" className="me-3 rounded"/>
+                            <img src={item.image || 'https://placehold.co/60'} alt={item.name} width="60" className="me-3 rounded"/>
                             {item.name}
                           </div>
                         </td>
@@ -92,7 +79,7 @@ function Carrito() {
                             type="number"
                             className="form-control"
                             value={item.quantity}
-                            onChange={(e) => handleQuantityChange(item.id, parseInt(e.target.value))}
+                            onChange={(e) => handleQuantityChange(item.id, e.target.value)}
                             min="1"
                           />
                         </td>
@@ -119,32 +106,8 @@ function Carrito() {
           </div>
         </div>
 
-        {/* Columna del resumen del pedido */}
-        <div className="col-md-4">
-          <div className="card">
-            <div className="card-header bg-purple text-white">
-              <h5 className="mb-0">Resumen del Pedido</h5>
-            </div>
-            <div className="card-body">
-              <div className="d-flex justify-content-between mb-2">
-                <span>Subtotal:</span>
-                <span>{formatCurrency(summary.subtotal)}</span>
-              </div>
-              <div className="d-flex justify-content-between mb-2">
-                <span>Envío:</span>
-                <span>{summary.envio === 0 ? 'Gratis' : formatCurrency(summary.envio)}</span>
-              </div>
-              <hr />
-              <div className="d-flex justify-content-between mb-3 h5">
-                <strong>Total:</strong>
-                <strong>{formatCurrency(summary.total)}</strong>
-              </div>
-              <div className="d-grid">
-                <button className="btn btn-purple btn-lg">Proceder al Pago</button>
-              </div>
-            </div>
-          </div>
-        </div>
+        {/* ... (Tu columna de Resumen del Pedido) ... */}
+        
       </div>
     </main>
   );

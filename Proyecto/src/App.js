@@ -1,12 +1,13 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-
+import 'bootstrap/dist/css/bootstrap.min.css';
 // Importa el layout principal
 import MainLayout from './layouts/MainLayout'; // Ajusta la ruta si es necesario
 
 // Importa el proveedor del contexto del carrito
 import { CartProvider } from './context/CartContext';
-
+import { AuthProvider } from './context/AuthContext';
+import ProtectedRoute from './components/ProtectedRoute';
 // Importa todas las páginas de cliente
 import Inicio from './pages/Inicio';
 import Tienda from './pages/Tienda';
@@ -27,32 +28,36 @@ import GestionUsuarios from './pages/admin/GestionUsuarios';
 
 function App() {
   return (
-    <CartProvider>
-      <BrowserRouter>
-        <Routes>
-          {/* Todas las rutas se renderizan dentro de MainLayout para tener Navbar y Footer */}
-          <Route path="/" element={<MainLayout />}>
-            {/* Rutas de Cliente */}
-            <Route index element={<Inicio />} />
-            <Route path="tienda" element={<Tienda />} />
-            <Route path="producto/:id" element={<DetalleProducto />} />
-            <Route path="registro" element={<Registro />} />
-            <Route path="login" element={<Login />} />
-            <Route path="blogs" element={<Blogs />} />
-            <Route path="carrito" element={<Carrito />} />
-            <Route path="blog/armani" element={<BlogArmani />} />
-            <Route path="blog/carolina" element={<BlogCarolina />} />
-            <Route path="nosotros" element={<Nosotros />} />
-            <Route path="contacto" element={<Contacto />} />
+    <AuthProvider>
+      <CartProvider>
+        <BrowserRouter>
+          <Routes>
+            {/* Todas las rutas se renderizan dentro de MainLayout para tener Navbar y Footer */}
+            <Route path="/" element={<MainLayout />}>
+              {/* Rutas de Cliente */}
+              <Route index element={<Inicio />} />
+              <Route path="tienda" element={<Tienda />} />
+              <Route path="producto/:id" element={<DetalleProducto />} />
+              <Route path="registro" element={<Registro />} />
+              <Route path="login" element={<Login />} />
+              <Route path="blogs" element={<Blogs />} />
+              <Route path="carrito" element={<Carrito />} />
+              <Route path="blog/armani" element={<BlogArmani />} />
+              <Route path="blog/carolina" element={<BlogCarolina />} />
+              <Route path="nosotros" element={<Nosotros />} />
+              <Route path="contacto" element={<Contacto />} />
 
-            {/* Rutas de Administrador */}
-            <Route path="admin" element={<DashboardAdmin />} />
-            <Route path="admin/productos" element={<GestionProductos />} />
-            <Route path="admin/usuarios" element={<GestionUsuarios />} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
-    </CartProvider>
+              {/* Rutas de Administrador */}
+              <Route element={<ProtectedRoute role="administrador" />}>
+                <Route path="admin" element={<DashboardAdmin />} />
+                <Route path="admin/productos" element={<GestionProductos />} />
+                <Route path="admin/usuarios" element={<GestionUsuarios />} />
+              </Route>
+            </Route>
+          </Routes>
+        </BrowserRouter>
+      </CartProvider>
+    </AuthProvider>
   );
 }
 

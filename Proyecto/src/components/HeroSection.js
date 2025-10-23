@@ -1,6 +1,5 @@
 //Componente de la página principal 
 import React from 'react';
-import heroGif from '../assets/gifs/video_polo_blue.gif'; 
 
 function HeroSection() {
   return (
@@ -14,7 +13,11 @@ function HeroSection() {
           </div>
           <div className="col-md-6 text-center">
             {/* Nota cómo se importa y usa la imagen local y se cambia el style */}
-            <img src={heroGif} alt="Perfumes" className="img-fluid rounded shadow" style={{ maxWidth: '300px' }} />
+            <img 
+              src="/assets/gifs/video_polo_blue.gif" 
+              alt="Animación de perfume" 
+              className="img-fluid rounded-circle hero-gif" 
+            />
           </div>
         </div>
       </div>

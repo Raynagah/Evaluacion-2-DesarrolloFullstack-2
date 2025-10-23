@@ -1,50 +1,67 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react'; // <--- Importar hooks
 import { useParams, Link } from 'react-router-dom';
+import { useCart } from '../context/CartContext'; // <--- Importar hook de carrito
+import { getProductById } from '../data/productsAPI'; // <--- 1. Importar la nueva API
 
-// --- Simulación de Base de Datos ---
-// En una aplicación real, estos datos vendrían de una API o un estado global.
-const allProducts = [
-  { id: 1, name: 'Perfume "Good Girl"', price: 85000, normalPrice: 95000, image: 'https://placehold.co/400x400/d1c4e9/4a148c?text=Good+Girl', genero: 'Femenino', tipo: 'Eau de Parfum' },
-  { id: 2, name: 'Perfume "212 VIP"', price: 78000, normalPrice: 88000, image: 'https://placehold.co/400x400/d1c4e9/4a148c?text=212+VIP', genero: 'Femenino', tipo: 'Eau de Toilette' },
-  { id: 3, name: 'Perfume "Armani Code"', price: 92000, normalPrice: 102000, image: 'https://placehold.co/400x400/d1c4e9/4a148c?text=Armani+Code', genero: 'Masculino', tipo: 'Eau de Parfum' },
-  { id: 4, name: 'Perfume "CH"', price: 75000, normalPrice: 85000, image: 'https://placehold.co/400x400/d1c4e9/4a148c?text=CH', genero: 'Femenino', tipo: 'Eau de Toilette' },
-  { id: 5, name: 'Perfume "Bad Boy"', price: 89000, normalPrice: 99000, image: 'https://placehold.co/400x400/d1c4e9/4a148c?text=Bad+Boy', genero: 'Masculino', tipo: 'Eau de Parfum' },
-  { id: 6, name: 'Perfume "Polo Blue"', price: 95000, normalPrice: 105000, image: 'https://placehold.co/400x400/d1c4e9/4a148c?text=Polo+Blue', genero: 'Masculino', tipo: 'Eau de Toilette' },
-];
-// ------------------------------------
+// --- 2. ELIMINAMOS la lista 'allProducts' de aquí ---
+// const allProducts = [ ... ];
 
 function DetalleProducto() {
-  // 1. useParams() lee los parámetros de la URL. Si tu ruta es "/producto/:id",
-  //    extraerá el valor de "id".
-  const { id } = useParams();
+  const { id } = useParams(); // Obtenemos el ID de la URL
+  const { addToCart } = useCart();
+  
+  // 3. Estados para el producto y la carga
+  const [producto, setProducto] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  // 2. Buscamos el producto en nuestra "base de datos" usando el ID de la URL.
-  //    Usamos parseInt porque el ID de la URL es un string.
-  const producto = allProducts.find(p => p.id === parseInt(id));
+  // 4. useEffect para "pedir" el producto usando el ID
+  useEffect(() => {
+    setLoading(true); // Empezamos a cargar
+    
+    getProductById(id)
+      .then(data => {
+        // Si la API lo encuentra, lo guardamos en el estado
+        setProducto(data);
+      })
+      .catch(error => {
+        // Si la API da un error (no encontrado), lo mostramos
+        console.error(error.message);
+        setProducto(null); // Dejamos el producto como nulo
+      })
+      .finally(() => {
+        setLoading(false); // Terminamos de cargar
+      });
+      
+  }, [id]); // Este efecto se repite si el 'id' de la URL cambia
 
-  // Formateador de moneda
   const formatCurrency = (value) => {
     return new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP' }).format(value);
   };
 
-  // 3. Si el producto no se encuentra, mostramos un mensaje.
+  // 5. Estado de Carga
+  if (loading) {
+    return (
+      <div className="container text-center my-5 py-5">
+        <h2 className="text-purple">Cargando Producto...</h2>
+        <div className="spinner-border text-purple" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </div>
+      </div>
+    );
+  }
+
+  // 6. Estado de Producto No Encontrado
   if (!producto) {
     return (
-      <div className="container my-5 text-center">
-        <h2>Producto no encontrado</h2>
+      <div className="container text-center my-5 py-5">
+        <h2 className="text-purple">Producto no encontrado</h2>
         <p>El perfume que buscas no existe o fue removido.</p>
         <Link to="/tienda" className="btn btn-purple">Volver a la Tienda</Link>
       </div>
     );
   }
 
-  // Lógica para añadir al carrito
-  const handleAddToCart = () => {
-    console.log(`${producto.name} añadido al carrito!`);
-    alert(`Has añadido ${producto.name} al carrito.`);
-  };
-
-  // 4. Si el producto se encuentra, renderizamos sus detalles.
+  // 7. Si el producto se encuentra, renderizamos sus detalles.
   return (
     <main className="container my-5">
       <div className="row align-items-center">
@@ -53,12 +70,22 @@ function DetalleProducto() {
         </div>
         <div className="col-md-7">
           <h2 className="text-purple fw-bold">{producto.name}</h2>
+          
+          {/* Mostramos los detalles que vienen de la API */}
           <p><strong>Género:</strong> {producto.genero}</p>
           <p><strong>Tipo:</strong> {producto.tipo}</p>
+          <p>{producto.description}</p> {/* Añadimos la descripción */}
+          
           <p className="text-decoration-line-through text-muted">{formatCurrency(producto.normalPrice)}</p>
           <p className="fs-3 fw-bold text-danger">{formatCurrency(producto.price)}</p>
+          
           <div className="d-flex gap-3 mt-4">
-            <button onClick={handleAddToCart} className="btn btn-purple btn-lg">Agregar al Carrito</button>
+            <button 
+              onClick={() => addToCart(producto)} // Usamos el contexto
+              className="btn btn-purple btn-lg"
+            >
+              Agregar al Carrito
+            </button>
             <Link to="/tienda" className="btn btn-outline-purple btn-lg">Volver a la Tienda</Link>
           </div>
         </div>
@@ -68,4 +95,3 @@ function DetalleProducto() {
 }
 
 export default DetalleProducto;
-

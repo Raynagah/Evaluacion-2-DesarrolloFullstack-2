@@ -1,19 +1,37 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom'; // <--- 1. Importar useNavigate
+import { useAuth } from '../context/AuthContext'; // <--- 2. Importar el hook de Auth
 
 function Login() {
-  // 1. Estados para controlar los campos del formulario
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState(''); // Estado para mensajes de error
+  
+  const { login } = useAuth(); // <--- 3. Obtener la función 'login' del contexto
+  const navigate = useNavigate(); // <--- 4. Hook para redirigir
 
-  // 2. Función que maneja el envío del formulario
-  const handleSubmit = (event) => {
-    event.preventDefault(); // Previene la recarga de la página
-    
-    // Aquí irá tu lógica de autenticación.
-    // Por ahora, solo mostraremos los datos en la consola.
-    console.log('Intento de inicio de sesión con:', { email, password });
-    alert('Formulario enviado. Revisa la consola para ver los datos.');
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    setError(''); // Limpiar errores previos
+
+    try {
+      // 5. Llamar a la función 'login' del contexto
+      const user = await login(email, password);
+
+      // 6. ¡Éxito! Redirigir según el 'tipo' de usuario
+      alert(`¡Bienvenido, ${user.nombre}!`);
+      
+      if (user.tipo === 'administrador') {
+        navigate('/admin'); // Redirige al dashboard de admin
+      } else {
+        navigate('/'); // Redirige al inicio para clientes
+      }
+
+    } catch (err) {
+      // 7. Si 'login' falla (rechaza la promesa), mostramos el error
+      setError('Correo o contraseña incorrectos. Por favor, intente de nuevo.');
+      console.error(err);
+    }
   };
 
   return (
@@ -26,7 +44,14 @@ function Login() {
                 <h4 className="mb-0">Iniciar Sesión</h4>
               </div>
               <div className="card-body p-4">
-                {/* 3. Se asocia la función handleSubmit al evento onSubmit del formulario */}
+                
+                {/* 8. Mostrar el mensaje de error si existe */}
+                {error && (
+                  <div className="alert alert-danger" role="alert">
+                    {error}
+                  </div>
+                )}
+                
                 <form onSubmit={handleSubmit}>
                   <div className="mb-3">
                     <label htmlFor="email" className="form-label">Correo Electrónico</label>
@@ -50,10 +75,7 @@ function Login() {
                       onChange={(e) => setPassword(e.target.value)}
                     />
                   </div>
-                  <div className="mb-3 form-check">
-                    <input type="checkbox" className="form-check-input" id="remember" />
-                    <label className="form-check-label" htmlFor="remember">Recordarme</label>
-                  </div>
+                  {/* ... (resto del form) ... */}
                   <div className="d-grid">
                     <button type="submit" className="btn btn-purple btn-lg">Ingresar</button>
                   </div>
@@ -62,7 +84,6 @@ function Login() {
               <div className="card-footer text-center py-3">
                 <p className="mb-0">
                   ¿No tienes una cuenta?{' '}
-                  {/* 4. Se usa Link para la navegación interna a la página de registro */}
                   <Link to="/registro" className="text-purple">Regístrate aquí</Link>
                 </p>
               </div>

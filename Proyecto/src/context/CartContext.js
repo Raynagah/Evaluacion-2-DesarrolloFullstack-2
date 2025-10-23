@@ -1,53 +1,83 @@
-import React, { createContext, useState, useContext } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 
-// 1. Creamos el Contexto
-// Este es el objeto que los componentes usarán para comunicarse.
+// 1. Crear el Contexto
 const CartContext = createContext();
 
-// 2. Creamos un Hook personalizado para usar el Contexto más fácilmente
-// En lugar de importar useContext y CartContext en cada archivo, solo importaremos useCart.
+// 2. Crear un "hook" personalizado para usar el contexto fácilmente
 export const useCart = () => useContext(CartContext);
 
-// 3. Creamos el Proveedor del Contexto (Provider)
-// Este componente envolverá nuestra aplicación y contendrá toda la lógica y el estado del carrito.
+// 3. Crear el Proveedor del Contexto
 export const CartProvider = ({ children }) => {
-  const [cartItems, setCartItems] = useState([]);
-
-  // Función para agregar productos al carrito
-  const addToCart = (product) => {
-    // Buscamos si el producto ya existe en el carrito
-    const existingItem = cartItems.find(item => item.id === product.id);
-
-    if (existingItem) {
-      // Si existe, solo aumentamos su cantidad
-      setCartItems(cartItems.map(item =>
-        item.id === product.id
-          ? { ...item, quantity: item.quantity + 1 }
-          : item
-      ));
-    } else {
-      // Si es un producto nuevo, lo agregamos con cantidad 1
-      setCartItems([...cartItems, { ...product, quantity: 1 }]);
+  // 4. Estado para los items del carrito
+  // Lee el valor inicial desde localStorage
+  const [cartItems, setCartItems] = useState(() => {
+    try {
+      const itemsFromStorage = localStorage.getItem('cart');
+      return itemsFromStorage ? JSON.parse(itemsFromStorage) : [];
+    } catch (error) {
+      console.error("Error al leer localStorage", error);
+      return [];
     }
+  });
+
+  // 5. useEffect para guardar en localStorage CADA VEZ que el carrito cambie
+  useEffect(() => {
+    try {
+      localStorage.setItem('cart', JSON.stringify(cartItems));
+    } catch (error) {
+      console.error("Error al guardar en localStorage", error);
+    }
+  }, [cartItems]);
+
+  // 6. Función para añadir al carrito
+  const addToCart = (product) => {
+    setCartItems(prevItems => {
+      // Buscar si el producto ya existe
+      const existingItem = prevItems.find(item => item.id === product.id);
+      
+      if (existingItem) {
+        // Si existe, actualiza la cantidad
+        return prevItems.map(item =>
+          item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
+        );
+      } else {
+        // Si no existe, añádelo con cantidad 1
+        // Asegúrate de incluir la imagen y otros datos que necesites
+        return [...prevItems, { ...product, quantity: 1 }];
+      }
+    });
+    alert(`Has añadido ${product.name} al carrito.`);
   };
 
-  // Puedes agregar más funciones aquí: removeFromCart, updateQuantity, clearCart, etc.
+  // 7. Funciones para actualizar, eliminar y vaciar
+  const updateQuantity = (id, newQuantity) => {
+    if (newQuantity < 1) return; // No permitir cantidades menores a 1
+    setCartItems(items =>
+      items.map(item => (item.id === id ? { ...item, quantity: newQuantity } : item))
+    );
+  };
 
-  // Calculamos la cantidad total de items para el contador del Navbar
-  const totalItemsInCart = cartItems.reduce((total, item) => total + item.quantity, 0);
+  const removeFromCart = (id) => {
+    setCartItems(items => items.filter(item => item.id !== id));
+  };
 
-  // 4. El valor (value) que proveemos contiene el estado y las funciones que queremos
-  //    que estén disponibles para el resto de la aplicación.
+  const clearCart = () => {
+    setCartItems([]);
+  };
+
+  // 8. Valor derivado: el contador total de ítems para el Navbar
+  // Suma las 'quantity' de todos los items
+  const cartCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
+
+  // 9. Valores que el proveedor "ofrecerá" a sus hijos
   const value = {
     cartItems,
     addToCart,
-    totalItemsInCart
+    updateQuantity,
+    removeFromCart,
+    clearCart,
+    cartCount // ¡Este es el número para el Navbar!
   };
 
-  return (
-    <CartContext.Provider value={value}>
-      {children}
-    </CartContext.Provider>
-  );
+  return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 };
-
