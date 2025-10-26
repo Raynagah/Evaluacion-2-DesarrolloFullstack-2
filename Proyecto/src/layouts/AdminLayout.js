@@ -1,7 +1,7 @@
 import React from "react";
 import { Outlet } from "react-router-dom";
-import AdminNavbar from "../components/admin/AdminNavbar"; // Ajusta esta ruta si tu carpeta difiere
-
+// En: src/layouts/AdminLayout.js
+import AdminNavbar from "../components/admin/AdminNavbar";
 function AdminLayout() {
   return (
     <div className="admin-layout bg-light min-vh-100">

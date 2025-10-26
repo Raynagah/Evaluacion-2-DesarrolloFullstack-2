@@ -1,11 +1,11 @@
 import React from 'react';
 
-// Función para formatear moneda
+// Función para formatear moneda (sin cambios)
 const formatCurrency = (value) => {
   return new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP' }).format(value);
 };
 
-// Función para formatear fecha
+// Función para formatear fecha (sin cambios)
 const formatDateTime = (isoString) => {
   const date = new Date(isoString);
   return date.toLocaleString('es-CL', {
@@ -17,16 +17,16 @@ const formatDateTime = (isoString) => {
   });
 };
 
-// Usamos React.forwardRef para que react-to-print pueda "agarrar" este componente
-const Boleta = React.forwardRef(({ data }, ref) => {
+// Componente de función normal (sin forwardRef)
+const Boleta = ({ data }) => {
   
   if (!data) return null;
 
   const { numero, fecha, cliente, items, resumen } = data;
 
   return (
-    // 'ref' se adjunta aquí. 'boleta-imprimible' es para el CSS.
-    <div ref={ref} className="boleta-imprimible p-4 border rounded">
+    // Ya no tiene el 'ref' aquí
+    <div className="boleta-imprimible p-4 border rounded">
       
       {/* --- Encabezado --- */}
       <div className="d-flex justify-content-between align-items-center mb-4">
@@ -97,6 +97,6 @@ const Boleta = React.forwardRef(({ data }, ref) => {
       </table>
     </div>
   );
-});
+};
 
 export default Boleta;

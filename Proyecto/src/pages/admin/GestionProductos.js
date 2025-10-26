@@ -1,287 +1,286 @@
-// import React, { useState, useEffect } from 'react';
-// // 1. Importar los componentes de react-bootstrap para el Modal y el Formulario
-// import { Button, Modal, Form, Table } from 'react-bootstrap';
+// src/pages/admin/GestionProductos.js
 
-// // 2. Importar TODAS las funciones de la API
-// import { 
-//   getAllProducts, 
-//   createProduct, 
-//   updateProduct, 
-//   deleteProduct 
-// } from '../../data/productsAPI'; // Ajusta la ruta si es necesario
+import React, { useState, useEffect } from 'react';
+// --- ¡CORRECCIÓN AQUÍ! ---
+// Añadimos Spinner, Row, Col a las importaciones
+import { Button, Modal, Form, Table, Alert, Image, Spinner, Row, Col } from 'react-bootstrap';
+// --------------------------
+// APIs
+import { getAllProducts, createProduct, updateProduct, deleteProduct } from '../../data/productsAPI';
+// Componentes
+import NavBar from '../../components/admin/AdminNavbar'; // Navbar de Admin
 
-// // Un estado inicial vacío para el formulario
-// const initialFormState = {
-//   name: '',
-//   price: 0,
-//   normalPrice: 0,
-//   genero: '',
-//   tipo: '',
-//   description: '',
-//   image: 'https://placehold.co/400x400' // Imagen por defecto
-// };
+// Estado inicial del formulario
+const initialFormState = {
+  name: '',
+  brand: '',
+  price: '',
+  normalPrice: '',
+  stock: '',
+  image: '',
+  categoriaId: 'perfumes-dama', // Valor por defecto
+  genero: '',
+  description: ''
+};
 
-// function GestionProductos() {
-//   // --- ESTADOS ---
-//   const [products, setProducts] = useState([]);
-//   const [loading, setLoading] = useState(true);
-//   const [showModal, setShowModal] = useState(false);
-//   const [formData, setFormData] = useState(initialFormState);
-//   const [editingProduct, setEditingProduct] = useState(null); // null = Creando, ID = Editando
+// Formato de moneda
+const formatCurrency = (value) => new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP' }).format(value);
 
-//   // --- LÓGICA DE CARGA (READ) ---
-//   const loadProducts = () => {
-//     setLoading(true);
-//     getAllProducts()
-//       .then(data => {
-//         setProducts(data);
-//         setLoading(false);
-//       })
-//       .catch(error => {
-//         console.error("Error al cargar productos:", error);
-//         setLoading(false);
-//       });
-//   };
+function GestionProductos() {
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [showModal, setShowModal] = useState(false);
+  const [formData, setFormData] = useState(initialFormState);
+  const [editingProduct, setEditingProduct] = useState(null);
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
 
-//   // Cargar productos al montar el componente
-//   useEffect(() => {
-//     loadProducts();
-//   }, []);
+  // Cargar productos
+  const loadProducts = () => {
+    setLoading(true);
+    getAllProducts()
+      .then(data => {
+        setProducts(data);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error("Error al cargar productos:", err);
+        setError("No se pudo cargar la lista de productos.");
+        setLoading(false);
+      });
+  };
 
-//   // --- LÓGICA DE MODAL ---
-//   const handleCloseModal = () => {
-//     setShowModal(false);
-//     setEditingProduct(null);
-//     setFormData(initialFormState); // Limpiar el formulario
-//   };
+  useEffect(() => {
+    loadProducts();
+  }, []);
 
-//   const handleShowCreateModal = () => {
-//     setEditingProduct(null);
-//     setFormData(initialFormState);
-//     setShowModal(true);
-//   };
+  // --- Lógica del Modal ---
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setEditingProduct(null);
+    setFormData(initialFormState);
+    setError(null);
+    setSuccess(null);
+  };
 
-//   const handleShowEditModal = (product) => {
-//     setEditingProduct(product); // Guardar el producto que estamos editando
-//     setFormData(product); // Llenar el formulario con sus datos
-//     setShowModal(true);
-//   };
+  const handleShowCreateModal = () => {
+    setEditingProduct(null);
+    setFormData(initialFormState);
+    setError(null);
+    setSuccess(null);
+    setShowModal(true);
+  };
 
-//   // --- LÓGICA DEL FORMULARIO ---
-//   const handleChange = (e) => {
-//     const { name, value } = e.target;
-//     setFormData(prevData => ({
-//       ...prevData,
-//       [name]: value
-//     }));
-//   };
+  const handleShowEditModal = (product) => {
+    setEditingProduct(product);
+    setFormData({
+      ...initialFormState,
+      ...product,
+      price: product.price?.toString() || '',
+      normalPrice: product.normalPrice?.toString() || '',
+      stock: product.stock?.toString() ?? '',
+    });
+    setError(null);
+    setSuccess(null);
+    setShowModal(true);
+  };
 
-//   // --- LÓGICA CRUD (CREATE, UPDATE, DELETE) ---
+  // --- Lógica del Formulario ---
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
 
-//   // CREATE y UPDATE
-//   const handleSubmit = (e) => {
-//     e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError(null);
+    setSuccess(null);
 
-//     if (editingProduct) {
-//       // --- (U)PDATE ---
-//       updateProduct(editingProduct.id, formData)
-//         .then(() => {
-//           alert("¡Producto actualizado con éxito!");
-//           handleCloseModal();
-//           loadProducts(); // Recargar la tabla
-//         })
-//         .catch(error => console.error("Error al actualizar:", error));
-//     } else {
-//       // --- (C)REATE ---
-//       createProduct(formData)
-//         .then(() => {
-//           alert("¡Producto creado con éxito!");
-//           handleCloseModal();
-//           loadProducts(); // Recargar la tabla
-//         })
-//         .catch(error => console.error("Error al crear:", error));
-//     }
-//   };
+    // Validaciones
+    if (!formData.name || !formData.brand || !formData.price || !formData.normalPrice || formData.stock === '') {
+      setError("Por favor, completa todos los campos obligatorios (*).");
+      return;
+    }
+    if (isNaN(parseFloat(formData.price)) || isNaN(parseFloat(formData.normalPrice)) || isNaN(parseInt(formData.stock))) {
+      setError("Precio, Precio Normal y Stock deben ser números válidos.");
+      return;
+    }
 
-//   // --- (D)ELETE ---
-//   const handleDelete = (id, name) => {
-//     if (window.confirm(`¿Estás seguro de que quieres eliminar "${name}"?`)) {
-//       deleteProduct(id)
-//         .then(() => {
-//           alert("Producto eliminado.");
-//           loadProducts(); // Recargar la tabla
-//         })
-//         .catch(error => console.error("Error al eliminar:", error));
-//     }
-//   };
-  
-//   // Helper para formatear moneda
-//   const formatCurrency = (value) => new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP' }).format(value);
+    try {
+      if (editingProduct) {
+        await updateProduct(editingProduct.id, formData);
+        setSuccess("Producto actualizado con éxito.");
+      } else {
+        await createProduct(formData);
+        setSuccess("Producto creado con éxito.");
+      }
+      handleCloseModal();
+      loadProducts();
+    } catch (err) {
+      console.error("Error al guardar producto:", err);
+      setError(err.message || "Ocurrió un error al guardar.");
+    }
+  };
 
-//   // --- RENDERIZADO ---
-//   return (
-//     <>
-//       {/* Contenido principal (el <main> de tu HTML) */}
-//       <main className="container my-5">
-//         <div className="d-flex justify-content-between align-items-center mb-4">
-//           <h1 className="text-purple">Gestión de Productos</h1>
-//           {/* Este botón ahora usa el estado de React */}
-//           <Button variant="purple" onClick={handleShowCreateModal}>
-//             Nuevo Producto
-//           </Button>
-//         </div>
+  // --- Lógica de Eliminación ---
+  const handleDelete = async (id, name) => {
+    if (window.confirm(`¿Estás seguro de eliminar el producto "${name}"?`)) {
+      try {
+        await deleteProduct(id);
+        alert("Producto eliminado.");
+        loadProducts();
+      } catch (err) {
+        console.error("Error al eliminar producto:", err);
+        alert(err.message || "Error al eliminar el producto.");
+      }
+    }
+  };
 
-//         {/* Tabla de productos */}
-//         <div className="table-responsive">
-//           <Table striped bordered hover>
-//             <thead className="table-purple">
-//               <tr>
-//                 <th>ID</th>
-//                 <th>Nombre</th>
-//                 <th>Precio</th>
-//                 <th>Género</th>
-//                 <th>Tipo</th>
-//                 <th>Acciones</th>
-//               </tr>
-//             </thead>
-//             <tbody>
-//               {loading ? (
-//                 <tr>
-//                   <td colSpan="6" className="text-center">Cargando productos...</td>
-//                 </tr>
-//               ) : (
-//                 products.map(product => (
-//                   <tr key={product.id}>
-//                     <td>{product.id}</td>
-//                     <td>{product.name}</td>
-//                     <td>{formatCurrency(product.price)}</td>
-//                     <td>{product.genero}</td>
-//                     <td>{product.tipo}</td>
-//                     <td>
-//                       <Button variant="outline-primary" size="sm" className="me-2" onClick={() => handleShowEditModal(product)}>
-//                         Editar
-//                       </Button>
-//                       <Button variant="outline-danger" size="sm" onClick={() => handleDelete(product.id, product.name)}>
-//                         Eliminar
-//                       </Button>
-//                     </td>
-//                   </tr>
-//                 ))
-//               )}
-//             </tbody>
-//           </Table>
-//         </div>
-//       </main>
 
-//       {/* Modal para nuevo/editar producto (manejado por React) */}
-//       <Modal show={showModal} onHide={handleCloseModal} size="lg">
-//         <Form onSubmit={handleSubmit}>
-//           <Modal.Header closeButton className="bg-purple text-white">
-//             <Modal.Title>
-//               {editingProduct ? "Editar Producto" : "Nuevo Producto"}
-//             </Modal.Title>
-//           </Modal.Header>
-//           <Modal.Body>
-//             {/* Usamos el Form de react-bootstrap */}
-//             <Form.Group className="mb-3">
-//               <Form.Label>Nombre *</Form.Label>
-//               <Form.Control
-//                 type="text"
-//                 name="name"
-//                 value={formData.name}
-//                 onChange={handleChange}
-//                 required
-//               />
-//             </Form.Group>
-            
-//             <Form.Group className="mb-3">
-//               <Form.Label>Descripción</Form.Label>
-//               <Form.Control
-//                 as="textarea"
-//                 rows={3}
-//                 name="description"
-//                 value={formData.description}
-//                 onChange={handleChange}
-//               />
-//             </Form.Group>
+  // --- Renderizado ---
+  return (
+    <>
+      <NavBar />
+      <main className="container my-5">
+        <div className="d-flex justify-content-between align-items-center mb-4">
+          <h1 className="text-purple">Gestión de Productos</h1>
+          <Button variant="purple" onClick={handleShowCreateModal}>
+            <i className="bi bi-plus-lg me-2"></i>Nuevo Producto
+          </Button>
+        </div>
 
-//             <div className="row">
-//               <Form.Group as="div" className="col-md-6 mb-3">
-//                 <Form.Label>Precio *</Form.Label>
-//                 <Form.Control
-//                   type="number"
-//                   name="price"
-//                   value={formData.price}
-//                   onChange={handleChange}
-//                   required
-//                 />
-//               </Form.Group>
-//               <Form.Group as="div" className="col-md-6 mb-3">
-//                 <Form.Label>Precio Normal</Form.Label>
-//                 <Form.Control
-//                   type="number"
-//                   name="normalPrice"
-//                   value={formData.normalPrice}
-//                   onChange={handleChange}
-//                 />
-//               </Form.Group>
-//             </div>
+        {success && <Alert variant="success" onClose={() => setSuccess(null)} dismissible>{success}</Alert>}
+        {error && !showModal && <Alert variant="danger" onClose={() => setError(null)} dismissible>{error}</Alert>}
 
-//             <div className="row">
-//               <Form.Group as="div" className="col-md-6 mb-3">
-//                 <Form.Label>Género *</Form.Label>
-//                 <Form.Select
-//                   name="genero"
-//                   value={formData.genero}
-//                   onChange={handleChange}
-//                   required
-//                 >
-//                   <option value="" disabled>Seleccione...</option>
-//                   <option value="Femenino">Femenino</option>
-//                   <option value="Masculino">Masculino</option>
-//                   <option value="Unisex">Unisex</option>
-//                 </Form.Select>
-//               </Form.Group>
-//               <Form.Group as="div" className="col-md-6 mb-3">
-//                 <Form.Label>Tipo *</Form.Label>
-//                 <Form.Select
-//                   name="tipo"
-//                   value={formData.tipo}
-//                   onChange={handleChange}
-//                   required
-//                 >
-//                   <option value="" disabled>Seleccione...</option>
-//                   <option value="Eau de Parfum">Eau de Parfum</option>
-//                   <option value="Eau de Toilette">Eau de Toilette</option>
-//                   <option value="Eau de Cologne">Eau de Cologne</option>
-//                 </Form.Select>
-//               </Form.Group>
-//             </div>
+        {loading ? (
+          // --- 'Spinner' ahora está definido ---
+          <div className="text-center"><Spinner animation="border" variant="purple" /></div>
+        ) : (
+          <div className="table-responsive shadow-sm">
+            <Table striped bordered hover className="align-middle">
+              <thead className="table-purple">
+                <tr>
+                  <th>ID</th>
+                  <th>Imagen</th>
+                  <th>Nombre</th>
+                  <th>Marca</th>
+                  <th>Precio Oferta</th>
+                  <th>Stock</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                {products.length > 0 ? products.map(product => (
+                  <tr key={product.id}>
+                    <td>{product.id}</td>
+                    <td>
+                      <Image src={product.image || 'https://via.placeholder.com/60'} alt={product.name} thumbnail style={{ width: '60px', height: '60px', objectFit: 'contain' }} />
+                    </td>
+                    <td>{product.name}</td>
+                    <td>{product.brand}</td>
+                    <td>{formatCurrency(product.price)}</td>
+                    <td className={product.stock < 10 ? 'text-danger fw-bold' : ''}>{product.stock}</td>
+                    <td>
+                      <Button
+                        variant="outline-primary"
+                        size="sm"
+                        className="me-2"
+                        onClick={() => handleShowEditModal(product)}
+                        title="Editar Producto"
+                      >
+                        <i className="bi bi-pencil-fill"></i>
+                      </Button>
+                      <Button
+                        variant="outline-danger"
+                        size="sm"
+                        onClick={() => handleDelete(product.id, product.name)}
+                        title="Eliminar Producto"
+                      >
+                         <i className="bi bi-trash3-fill"></i>
+                      </Button>
+                    </td>
+                  </tr>
+                )) : (
+                   <tr>
+                    <td colSpan="7" className="text-center text-muted">No hay productos registrados.</td>
+                   </tr>
+                )}
+              </tbody>
+            </Table>
+          </div>
+        )}
 
-//             <Form.Group className="mb-3">
-//               <Form.Label>URL de Imagen</Form.Label>
-//               <Form.Control
-//                 type="text"
-//                 name="image"
-//                 value={formData.image}
-//                 onChange={handleChange}
-//               />
-//             </Form.Group>
+        {/* --- Modal Crear/Editar (Row y Col ahora están definidos) --- */}
+        <Modal show={showModal} onHide={handleCloseModal} size="lg">
+          <Form onSubmit={handleSubmit}>
+            <Modal.Header closeButton className="bg-purple text-white">
+              <Modal.Title>{editingProduct ? 'Editar Producto' : 'Crear Nuevo Producto'}</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+              {error && <Alert variant="danger">{error}</Alert>}
 
-//           </Modal.Body>
-//           <Modal.Footer>
-//             <Button variant="secondary" onClick={handleCloseModal}>
-//               Cancelar
-//             </Button>
-//             <Button variant="purple" type="submit">
-//               Guardar Producto
-//             </Button>
-//           </Modal.Footer>
-//         </Form>
-//       </Modal>
-//     </>
-//   );
-// }
+              <Row className="mb-3">
+                 <Form.Group as={Col} md="8">
+                    <Form.Label>Nombre Producto *</Form.Label>
+                    <Form.Control type="text" name="name" value={formData.name} onChange={handleChange} required />
+                 </Form.Group>
+                 <Form.Group as={Col} md="4">
+                    <Form.Label>Marca *</Form.Label>
+                    <Form.Control type="text" name="brand" value={formData.brand} onChange={handleChange} required />
+                 </Form.Group>
+              </Row>
 
-// export default GestionProductos;
-// **/
+              <Row className="mb-3">
+                <Form.Group as={Col} md="4">
+                  <Form.Label>Precio Oferta ($) *</Form.Label>
+                  <Form.Control type="number" name="price" value={formData.price} onChange={handleChange} required />
+                </Form.Group>
+                <Form.Group as={Col} md="4">
+                  <Form.Label>Precio Normal ($) *</Form.Label>
+                  <Form.Control type="number" name="normalPrice" value={formData.normalPrice} onChange={handleChange} required />
+                </Form.Group>
+                <Form.Group as={Col} md="4">
+                  <Form.Label>Stock *</Form.Label>
+                  <Form.Control type="number" name="stock" value={formData.stock} onChange={handleChange} required />
+                </Form.Group>
+              </Row>
+
+              <Form.Group className="mb-3">
+                <Form.Label>URL de la Imagen</Form.Label>
+                <Form.Control type="text" name="image" value={formData.image} onChange={handleChange} placeholder="https://ejemplo.com/imagen.jpg" />
+                {formData.image && <Image src={formData.image} thumbnail className="mt-2" style={{ maxHeight: '100px' }} />}
+              </Form.Group>
+
+              <Row className="mb-3">
+                 <Form.Group as={Col} md="6">
+                    <Form.Label>Categoría *</Form.Label>
+                    <Form.Select name="categoriaId" value={formData.categoriaId} onChange={handleChange} required>
+                       <option value="perfumes-dama">Perfumes Dama</option>
+                       <option value="perfumes-varon">Perfumes Varón</option>
+                       <option value="perfumes-unisex">Perfumes Unisex</option>
+                    </Form.Select>
+                 </Form.Group>
+                 <Form.Group as={Col} md="6">
+                    <Form.Label>Género</Form.Label>
+                    <Form.Control type="text" name="genero" value={formData.genero} onChange={handleChange} placeholder="Ej: Femenino, Masculino, Unisex"/>
+                 </Form.Group>
+              </Row>
+
+              <Form.Group className="mb-3">
+                <Form.Label>Descripción</Form.Label>
+                <Form.Control as="textarea" rows={3} name="description" value={formData.description} onChange={handleChange} />
+              </Form.Group>
+
+            </Modal.Body>
+            <Modal.Footer>
+              <Button variant="secondary" onClick={handleCloseModal}>Cancelar</Button>
+              <Button variant="purple" type="submit">Guardar Cambios</Button>
+            </Modal.Footer>
+          </Form>
+        </Modal>
+      </main>
+    </>
+  );
+}
+
+export default GestionProductos;

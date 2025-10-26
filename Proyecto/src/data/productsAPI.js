@@ -1,6 +1,11 @@
-// --- 1. NUESTRA "BASE DE DATOS" SIMULADA ---
-// Lista actualizada con la propiedad 'categoriaId' añadida.
-let products = [
+// src/data/productsAPI.js
+
+// --- 1. CLAVE PARA GUARDAR EN LOCALSTORAGE ---
+const PRODUCTS_STORAGE_KEY = 'products_db';
+
+// --- 2. DATOS INICIALES (TUS PRODUCTOS) ---
+// Estos se usarán solo si localStorage está vacío la primera vez.
+const initialProducts = [
   {
     id: 1,
     name: '1 Million',
@@ -9,10 +14,9 @@ let products = [
     normalPrice: 99000,
     image: '/assets/img/1 Million Rabanne.webp',
     genero: 'Masculino',
-    // --- MODIFICACIÓN AQUÍ ---
     categoriaId: 'perfumes-varon',
     tipo: 'Eau de Toilette',
-    stock: 20,
+    stock: 20, // <-- Valor inicial
     description: 'Una fragancia icónica y extravagante, que representa el lujo y el poder. Notas de cuero especiado, mandarina y canela.'
   },
   {
@@ -23,7 +27,6 @@ let products = [
     normalPrice: 130000,
     image: '/assets/img/Black Orchid Tom Ford.jpg',
     genero: 'Unisex',
-    // --- MODIFICACIÓN AQUÍ ---
     categoriaId: 'perfumes-unisex',
     tipo: 'Eau de Parfum',
     stock: 25,
@@ -37,7 +40,6 @@ let products = [
     normalPrice: 85000,
     image: '/assets/img/Burberry Brit Eau de Toilette Burberry.jpg',
     genero: 'Femenino',
-    // --- MODIFICACIÓN AQUÍ ---
     categoriaId: 'perfumes-dama',
     tipo: 'Eau de Toilette',
     stock: 25,
@@ -51,7 +53,6 @@ let products = [
     normalPrice: 89000,
     image: '/assets/img/CHPerfumesHombre.avif',
     genero: 'Masculino',
-    // --- MODIFICACIÓN AQUÍ ---
     categoriaId: 'perfumes-varon',
     tipo: 'Eau de Toilette',
     stock: 30,
@@ -65,7 +66,6 @@ let products = [
     normalPrice: 140000,
     image: '/assets/img/Coco Mademoiselle Intense Chanel.webp',
     genero: 'Femenino',
-    // --- MODIFICACIÓN AQUÍ ---
     categoriaId: 'perfumes-dama',
     tipo: 'Eau de Parfum',
     stock: 35,
@@ -79,7 +79,6 @@ let products = [
     normalPrice: 180000,
     image: '/assets/img/Creed Aventus.webp',
     genero: 'Masculino',
-    // --- MODIFICACIÓN AQUÍ ---
     categoriaId: 'perfumes-varon',
     tipo: 'Eau de Parfum',
     stock: 40,
@@ -93,7 +92,6 @@ let products = [
     normalPrice: 110000,
     image: '/assets/img/Dior Homme Intense Edp 100ml Hombre.webp',
     genero: 'Masculino',
-    // --- MODIFICACIÓN AQUÍ ---
     categoriaId: 'perfumes-varon',
     tipo: 'Eau de Parfum',
     stock: 45,
@@ -107,7 +105,6 @@ let products = [
     normalPrice: 95000,
     image: '/assets/img/Eros Versace.webp',
     genero: 'Masculino',
-    // --- MODIFICACIÓN AQUÍ ---
     categoriaId: 'perfumes-varon',
     tipo: 'Eau de Toilette',
     stock: 50,
@@ -121,12 +118,10 @@ let products = [
     normalPrice: 88000,
     image: '/assets/img/Explorer Montblanc.jpg',
     genero: 'Masculino',
-    // --- MODIFICACIÓN AQUÍ ---
     categoriaId: 'perfumes-varon',
     tipo: 'Eau de Parfum',
     stock: 55,
     description: 'Una invitación a un viaje fantástico, un irresistible llamado a la aventura. Notas de vetiver, pachulí y maderas.'
-
   },
   {
     id: 10,
@@ -136,12 +131,10 @@ let products = [
     normalPrice: 95000,
     image: '/assets/img/Good Girl Carolina Herrera.jpg',
     genero: 'Femenino',
-    // --- MODIFICACIÓN AQUÍ ---
     categoriaId: 'perfumes-dama',
     tipo: 'Eau de Parfum',
     stock: 60,
     description: 'Una fragancia audaz y sofisticada, inspirada en la visión única de Carolina Herrera de la dualidad de la mujer moderna.'
-
   },
   {
     id: 11,
@@ -151,7 +144,6 @@ let products = [
     normalPrice: 105000,
     image: '/assets/img/La Nuit de L\'Homme Yves Saint Laurent.webp',
     genero: 'Masculino',
-    // --- MODIFICACIÓN AQUÍ ---
     categoriaId: 'perfumes-varon',
     tipo: 'Eau de Toilette',
     stock: 70,
@@ -165,7 +157,6 @@ let products = [
     normalPrice: 98000,
     image: '/assets/img/La Vie Est Belle Lancôme.webp',
     genero: 'Femenino',
-    // --- MODIFICACIÓN AQUÍ ---
     categoriaId: 'perfumes-dama',
     tipo: 'Eau de Parfum',
     stock: 80,
@@ -179,12 +170,10 @@ let products = [
     normalPrice: 75000,
     image: '/assets/img/Le Parfait Pour Homme Armaf.webp',
     genero: 'Masculino',
-    // --- MODIFICACIÓN AQUÍ ---
     categoriaId: 'perfumes-varon',
     tipo: 'Eau de Parfum',
     stock: 90,
     description: 'Una fragancia intensa y especiada, diseñada para el hombre moderno que busca la perfección. Notas de piña, bergamota y cuero.'
-
   },
   {
     id: 14,
@@ -194,7 +183,6 @@ let products = [
     normalPrice: 83000,
     image: '/assets/img/perfume_azzaro.png',
     genero: 'Masculino',
-    // --- MODIFICACIÓN AQUÍ ---
     categoriaId: 'perfumes-varon',
     tipo: 'Eau de Toilette',
     stock: 6,
@@ -208,7 +196,6 @@ let products = [
     normalPrice: 118000,
     image: '/assets/img/Valentino Uomo Born In Roma Intense Valentino.jpg',
     genero: 'Masculino',
-    // --- MODIFICACIÓN AQUÍ ---
     categoriaId: 'perfumes-varon',
     tipo: 'Eau de Parfum',
     stock: 5,
@@ -216,93 +203,142 @@ let products = [
   },
 ];
 
-// Para simular una API real, envolvemos en Promesas.
-// ... (El resto del archivo no necesita cambios) ...
-
-
-// --- 2. FUNCIONES CRUD ---
-// (Estas funciones no cambian, ya que la lógica de filtrado
-// está en Tienda.js, no en la API)
+// --- 3. FUNCIONES CRUD USANDO LOCALSTORAGE ---
 
 /**
- * (R)EAD: Leer todos los productos
+ * (R)EAD: Leer todos los productos desde localStorage
  */
 export const getAllProducts = () => {
   return new Promise((resolve) => {
-    // Simulamos un pequeño retraso del servidor
+    // Simulamos un pequeño retraso
     setTimeout(() => {
-      resolve([...products]); // Devolvemos una copia
-    }, 500); // 500ms de retraso
+      const productsJSON = localStorage.getItem(PRODUCTS_STORAGE_KEY);
+      let products = [];
+      if (productsJSON) {
+        try {
+          products = JSON.parse(productsJSON);
+        } catch (error) {
+          console.error("Error al parsear productos de localStorage:", error);
+          products = [...initialProducts]; // Usar iniciales si hay error
+          localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(products));
+        }
+      } else {
+        products = [...initialProducts]; // Usar y guardar iniciales si no existen
+        localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(products));
+      }
+      resolve(products);
+    }, 500); // Mantenemos el retraso de 500ms
   });
 };
 
 /**
- * (R)EAD: Leer un solo producto por ID
+ * (R)EAD: Leer un solo producto por ID (ahora usa getAllProducts)
  */
 export const getProductById = (id) => {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      const product = products.find(p => p.id === Number.parseInt(id));
+  return new Promise(async (resolve, reject) => { // Usamos async para esperar a getAllProducts
+    try {
+      // Esperamos a que se carguen los productos de localStorage
+      const products = await getAllProducts();
+      // Aseguramos que el ID sea número
+      const productId = parseInt(id);
+      const product = products.find(p => p.id === productId);
       if (product) {
         resolve({ ...product }); // Devolver una copia
       } else {
         reject(new Error('Producto no encontrado'));
       }
-    }, 300);
+    } catch (error) {
+      reject(error); // Rechazar si getAllProducts falla
+    }
   });
 };
 
 /**
- * (C)REATE: Crear un nuevo producto
+ * (C)REATE: Crear un nuevo producto y guardarlo en localStorage
  */
 export const createProduct = (productData) => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      const newId = Math.max(...products.map(p => p.id)) + 1;
+  return new Promise(async (resolve, reject) => {
+    try {
+      const products = await getAllProducts(); // Leer actuales
+
+      const newId = products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1;
       const newProduct = {
         ...productData,
         id: newId,
+        // Asegurar que los números sean números
+        price: Number(productData.price) || 0,
+        normalPrice: Number(productData.normalPrice) || 0,
+        stock: Number(productData.stock) || 0,
       };
-      products.push(newProduct);
+
+      products.push(newProduct); // Añadir a la lista
+      // Guardar la lista COMPLETA actualizada
+      localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(products));
+
       resolve(newProduct);
-    }, 500);
+    } catch (error) {
+      reject(error);
+    }
   });
 };
 
 /**
- * (U)PDATE: Actualizar un producto existente
+ * (U)PDATE: Actualizar un producto existente en localStorage
  */
 export const updateProduct = (id, updates) => {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      const productId = Number.parseInt(id);
+  return new Promise(async (resolve, reject) => {
+    try {
+      let products = await getAllProducts(); // Leer actuales
+      const productId = parseInt(id);
       const index = products.findIndex(p => p.id === productId);
 
       if (index !== -1) {
-        products[index] = { ...products[index], ...updates };
-        resolve({ ...products[index] });
+        // Crear el objeto actualizado
+        const updatedProduct = {
+          ...products[index], // Datos antiguos
+          ...updates,         // Nuevos datos (pueden sobrescribir)
+          // Re-asegurar que los números sean números
+          price: Number(updates.price) ?? products[index].price, // Usar ?? por si viene 0
+          normalPrice: Number(updates.normalPrice) ?? products[index].normalPrice,
+          stock: Number(updates.stock) ?? products[index].stock,
+        };
+
+        products[index] = updatedProduct; // Reemplazar en la lista
+        // Guardar la lista COMPLETA actualizada
+        localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(products));
+
+        resolve({ ...updatedProduct }); // Devolver copia actualizada
       } else {
         reject(new Error('No se pudo actualizar: Producto no encontrado'));
       }
-    }, 500);
+    } catch (error) {
+      reject(error);
+    }
   });
 };
 
 /**
- * (D)ELETE: Eliminar un producto
+ * (D)ELETE: Eliminar un producto de localStorage
  */
 export const deleteProduct = (id) => {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      const productId = Number.parseInt(id);
-      const index = products.findIndex(p => p.id === productId);
+  return new Promise(async (resolve, reject) => {
+    try {
+      let products = await getAllProducts(); // Leer actuales
+      const productId = parseInt(id);
+      const initialLength = products.length;
 
-      if (index !== -1) {
-        products.splice(index, 1);
-        resolve(true); // Éxito
+      // Crear NUEVA lista filtrada
+      products = products.filter(p => p.id !== productId);
+
+      if (products.length < initialLength) { // Si se eliminó algo
+        // Guardar la lista COMPLETA filtrada
+        localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(products));
+        resolve({ message: 'Producto eliminado con éxito.' }); // Éxito
       } else {
         reject(new Error('No se pudo eliminar: Producto no encontrado'));
       }
-    }, 500);
+    } catch (error) {
+      reject(error);
+    }
   });
 };

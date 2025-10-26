@@ -1,39 +1,50 @@
+// src/pages/Login.js
+
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom'; // <--- 1. Importar useNavigate
-import { useAuth } from '../context/AuthContext'; // <--- 2. Importar el hook de Auth
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext'; // Importamos el hook
+// import '../styles/login.css'; // (Asumo que tienes estilos aquí)
 
 function Login() {
+  // Estados para los campos del formulario
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState(''); // Estado para mensajes de error
   
-  const { login } = useAuth(); // <--- 3. Obtener la función 'login' del contexto
-  const navigate = useNavigate(); // <--- 4. Hook para redirigir
+  // --- ¡AQUÍ ESTÁ LA CLAVE! ---
+  // Estados para el error y la carga
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
+  // -----------------------------
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    setError(''); // Limpiar errores previos
+  const navigate = useNavigate();
+  const { login } = useAuth(); // Obtenemos la función 'login' del contexto
+
+  // --- ¡AQUÍ ESTÁ LA CORRECCIÓN! ---
+  // Envolvemos la lógica en un try...catch asíncrono
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError(null); // Limpiamos errores anteriores
+    setLoading(true);
 
     try {
-      // 5. Llamar a la función 'login' del contexto
-      const user = await login(email, password);
-
-      // 6. ¡Éxito! Redirigir según el 'tipo' de usuario
-      alert(`¡Bienvenido, ${user.nombre}!`);
+      // 1. Intentamos hacer login
+      await login(email, password);
       
-      if (user.tipo === 'administrador') {
-        navigate('/admin'); // Redirige al dashboard de admin
-      } else {
-        navigate('/'); // Redirige al inicio para clientes
-      }
-
+      // 2. Si tiene éxito, navegamos al inicio
+      navigate('/'); 
+      
     } catch (err) {
-      // 7. Si 'login' falla (rechaza la promesa), mostramos el error
-      setError('Correo o contraseña incorrectos. Por favor, intente de nuevo.');
-      console.error(err);
+      // 3. Si 'login()' rechaza la promesa, ¡la atrapamos aquí!
+      // Guardamos el mensaje de error (ej: "Credenciales inválidas.") en el estado
+      setError(err.message); 
+      
+    } finally {
+      // 4. Se ejecuta siempre, con o sin error
+      setLoading(false); 
     }
   };
 
+  // El JSX lo he reconstruido basándome en el log de error que me diste
   return (
     <section className="login-section py-5">
       <div className="container">
@@ -45,46 +56,58 @@ function Login() {
               </div>
               <div className="card-body p-4">
                 
-                {/* 8. Mostrar el mensaje de error si existe */}
+                {/* --- ¡AQUÍ SE MOSTRARÁ EL ERROR! --- */}
+                {/* Esto es lo que la prueba está buscando */}
                 {error && (
                   <div className="alert alert-danger" role="alert">
                     {error}
                   </div>
                 )}
-                
-                <form onSubmit={handleSubmit}>
+
+                <form onSubmit={handleSubmit}> {/* Asignamos el handleSubmit */}
                   <div className="mb-3">
-                    <label htmlFor="email" className="form-label">Correo Electrónico</label>
-                    <input 
-                      type="email" 
-                      className="form-control" 
-                      id="email" 
-                      required 
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
+                    <label className="form-label" htmlFor="email">
+                      Correo Electrónico
+                    </label>
+                    <input
+                      className="form-control"
+                      id="email"
+                      required
+                      type="email"
+                      value={email} // Conectamos al estado
+                      onChange={(e) => setEmail(e.target.value)} // Conectamos al estado
                     />
                   </div>
                   <div className="mb-3">
-                    <label htmlFor="password" className="form-label">Contraseña</label>
-                    <input 
-                      type="password" 
-                      className="form-control" 
-                      id="password" 
-                      required 
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
+                    <label className="form-label" htmlFor="password">
+                      Contraseña
+                    </label>
+                    <input
+                      className="form-control"
+                      id="password"
+                      required
+                      type="password"
+                      value={password} // Conectamos al estado
+                      onChange={(e) => setPassword(e.target.value)} // Conectamos al estado
                     />
                   </div>
-                  {/* ... (resto del form) ... */}
                   <div className="d-grid">
-                    <button type="submit" className="btn btn-purple btn-lg">Ingresar</button>
+                    <button 
+                      className="btn btn-purple btn-lg" 
+                      type="submit"
+                      disabled={loading} // Deshabilitar mientras carga
+                    >
+                      {loading ? 'Ingresando...' : 'Ingresar'}
+                    </button>
                   </div>
                 </form>
               </div>
               <div className="card-footer text-center py-3">
                 <p className="mb-0">
-                  ¿No tienes una cuenta?{' '}
-                  <Link to="/registro" className="text-purple">Regístrate aquí</Link>
+                  ¿No tienes una cuenta?
+                  <Link className="text-purple" to="/registro">
+                    Regístrate aquí
+                  </Link>
                 </p>
               </div>
             </div>

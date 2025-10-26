@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-// Importamos nuestra API de usuarios que creamos antes
-import { getAllUsers } from '../data/usersAPI'; 
+// --- ¡CORRECCIÓN 1: IMPORTAR 'createUser' ---
+// Importamos AMBAS funciones de nuestra API de usuarios
+import { getAllUsers, createUser } from '../data/usersAPI'; 
 
 const AuthContext = createContext();
 
@@ -8,7 +9,7 @@ export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }) => {
   // Estado para el usuario actual.
-  // Intentamos leerlo desde sessionStorage al cargar la app.
+  // Esta parte de leer/guardar en sessionStorage es PERFECTA, no se toca.
   const [currentUser, setCurrentUser] = useState(() => {
     try {
       const user = sessionStorage.getItem('currentUser');
@@ -18,7 +19,7 @@ export const AuthProvider = ({ children }) => {
     }
   });
 
-  // Guardar en sessionStorage cada vez que currentUser cambie
+  // Este useEffect también es PERFECTO, no se toca.
   useEffect(() => {
     if (currentUser) {
       sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
@@ -29,11 +30,9 @@ export const AuthProvider = ({ children }) => {
 
   /**
    * (C)RÍTICA DE SEGURIDAD:
-   * En una app real, la API NUNCA debería devolver todos los usuarios.
-   * La API debería tener un endpoint (ej: /login) que reciba el email/pass
-   * y devuelva SOLO el token o el usuario si la contraseña es correcta.
-   * * Esta simulación es INSEGURA y solo para fines de desarrollo.
+   * (Tu comentario es 100% correcto)
    */
+  // Tu función 'login' está PERFECTA, no se toca.
   const login = (email, password) => {
     return new Promise((resolve, reject) => {
       getAllUsers().then(users => {
@@ -54,16 +53,52 @@ export const AuthProvider = ({ children }) => {
     });
   };
 
+  // --- ¡CORRECCIÓN 2: AÑADIR LA FUNCIÓN DE REGISTRO! ---
+  /**
+   * Esta función guarda permanentemente al usuario en la
+   * "base de datos" (usersAPI) y luego inicia su sesión.
+   */
+  const register = (userData) => {
+    return new Promise((resolve, reject) => {
+      // Aseguramos que el tipo siempre sea 'cliente'
+      const fullUserData = {
+        ...userData,
+        tipo: 'cliente'
+      };
+      
+      // Llamamos a la API para CREAR el usuario (guardar en localStorage)
+      createUser(fullUserData)
+        .then(newUser => {
+          // Si la API tuvo éxito (usuario creado):
+          // 1. Iniciar sesión inmediatamente
+          const { password: _, ...userToStore } = newUser;
+          setCurrentUser(userToStore);
+          // 2. Devolver el nuevo usuario al formulario de registro
+          resolve(userToStore);
+        })
+        .catch(error => {
+          // Si la API falló (ej: email duplicado)
+          reject(error);
+        });
+    });
+  };
+  // --- FIN DE LA CORRECCIÓN 2 ---
+
+
+  // Tu función 'logout' es PERFECTA, no se toca.
+  // Solo limpia el estado, y el useEffect se encarga del sessionStorage.
   const logout = () => {
     setCurrentUser(null);
   };
 
   // Valores que proveerá el contexto
   const value = {
-    currentUser, // El objeto del usuario (o null)
-    login,         // La función para iniciar sesión
-    logout,        // La función para cerrar sesión
-    isAuthenticated: !!currentUser // Un booleano fácil de chequear
+    currentUser,
+    login,
+    logout,
+    // --- ¡CORRECCIÓN 3: EXPONER 'register'! ---
+    register, // Añadimos la nueva función al contexto
+    isAuthenticated: !!currentUser
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

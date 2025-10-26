@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { createUser } from '../data/usersAPI';
+// --- 1. ELIMINAR ESTA LÍNEA ---
+// import { createUser } from '../data/usersAPI'; 
+// (AuthContext se encargará de esto)
+
 // 1. Importar los datos de regiones
 import { regionesComunas } from '../data/regionesComunas';
 
@@ -22,14 +25,17 @@ function Registro() {
 
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
-  
+
   // 3. Estado para las comunas que se pueden seleccionar
   const [comunasDisponibles, setComunasDisponibles] = useState([]);
 
   const navigate = useNavigate();
-  const { login } = useAuth();
 
-  // 4. Función GENÉRICA para inputs simples
+  // --- 2. OBTENER 'register' DEL CONTEXTO ---
+  // (Reemplazamos 'login' por 'register')
+  const { register } = useAuth();
+
+  // 4. Función GENÉRICA para inputs simples (sin cambios)
   const handleChange = (e) => {
     const { id, value } = e.target;
     setFormData(prevState => ({
@@ -38,7 +44,7 @@ function Registro() {
     }));
   };
 
-  // 5. Función ESPECIAL para manejar el cambio de REGIÓN
+  // 5. Función ESPECIAL para manejar el cambio de REGIÓN (sin cambios)
   const handleRegionChange = (e) => {
     const regionNombre = e.target.value;
 
@@ -50,19 +56,19 @@ function Registro() {
 
     // Buscamos las comunas de esa región
     const regionSeleccionada = regionesComunas.find(r => r.nombre === regionNombre);
-    
+
     // Actualizamos el estado de las comunas disponibles
     if (regionSeleccionada) {
       setComunasDisponibles(regionSeleccionada.comunas);
     } else {
-      setComunasDisponibles([]); 
+      setComunasDisponibles([]);
     }
   };
 
-  // 6. handleSubmit actualizado con TODAS las validaciones
+  // 6. handleSubmit actualizado con TODAS las validaciones (sin cambios)
   const handleSubmit = async (event) => {
-    event.preventDefault(); 
-    setErrors({}); 
+    event.preventDefault();
+    setErrors({});
     setLoading(true);
 
     const newErrors = {};
@@ -72,7 +78,7 @@ function Registro() {
     if (formData.password !== formData.confirmarPassword) {
       newErrors.password = 'Las contraseñas no coinciden.';
     }
-    
+
     // Validación de campos nuevos obligatorios
     if (!formData.region) {
       newErrors.region = 'Debe seleccionar una región.';
@@ -84,11 +90,11 @@ function Registro() {
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       setLoading(false);
-      return; 
+      return;
     }
 
     try {
-      // 7. Se envían TODOS los datos a la API
+      // 7. Se envían TODOS los datos a la API (sin cambios)
       const userData = {
         rut: formData.rut,
         nombre: formData.nombre,
@@ -98,18 +104,24 @@ function Registro() {
         direccion: formData.direccion,
         region: formData.region, // <-- NUEVO
         comuna: formData.comuna,  // <-- NUEVO
-        tipo: 'cliente' 
+        // (Ya no es necesario 'tipo: cliente', 
+        //  el AuthContext/register se encarga de eso)
       };
 
-      await createUser(userData);
-      await login(formData.correo, formData.password);
+      // --- 3. ¡AQUÍ ESTÁ LA CORRECCIÓN PRINCIPAL! ---
+      // Reemplazamos las dos llamadas (createUser y login)
+      // por UNA sola llamada a la función 'register' del contexto.
+      // Esta función hace AMBAS cosas: guarda permanentemente E inicia sesión.
+      await register(userData);
 
       alert('¡Registro exitoso! Bienvenido/a.');
-      navigate('/'); 
+      navigate('/');
 
     } catch (error) {
       console.error("Error en el registro:", error);
-      setErrors({ general: 'Hubo un error al crear la cuenta. Por favor, intente más tarde.' });
+      // Si el error viene de 'createUser' (ej: email duplicado),
+      // lo mostramos aquí.
+      setErrors({ general: error.message || 'Hubo un error al crear la cuenta. Por favor, intente más tarde.' });
       setLoading(false);
     }
   };
@@ -124,88 +136,88 @@ function Registro() {
                 <h4 className="mb-0">Crea tu Cuenta</h4>
               </div>
               <div className="card-body p-4 p-md-5">
-                
+
                 {errors.general && (
                   <div className="alert alert-danger">{errors.general}</div>
                 )}
 
                 <form onSubmit={handleSubmit}>
-                  
+
                   {/* --- CAMPOS ORIGINALES --- */}
                   <div className="row">
                     <div className="col-md-6 mb-3">
-                        <label htmlFor="rut" className="form-label fw-bold">RUT *</label>
-                        <input type="text" className="form-control" id="rut" required value={formData.rut} onChange={handleChange} />
+                      <label htmlFor="rut" className="form-label fw-bold">RUT *</label>
+                      <input type="text" className="form-control" id="rut" required value={formData.rut} onChange={handleChange} />
                     </div>
                     <div className="col-md-6 mb-3">
-                        <label htmlFor="nombre" className="form-label fw-bold">Nombre *</label>
-                        <input type="text" className="form-control" id="nombre" required value={formData.nombre} onChange={handleChange} />
+                      <label htmlFor="nombre" className="form-label fw-bold">Nombre *</label>
+                      <input type="text" className="form-control" id="nombre" required value={formData.nombre} onChange={handleChange} />
                     </div>
                   </div>
                   <div className="mb-3">
-                      <label htmlFor="apellidos" className="form-label fw-bold">Apellidos *</label>
-                      <input type="text" className="form-control" id="apellidos" required value={formData.apellidos} onChange={handleChange} />
+                    <label htmlFor="apellidos" className="form-label fw-bold">Apellidos *</label>
+                    <input type="text" className="form-control" id="apellidos" required value={formData.apellidos} onChange={handleChange} />
                   </div>
                   <div className="row">
                     <div className="col-md-6 mb-3">
-                        <label htmlFor="correo" className="form-label fw-bold">Correo *</label>
-                        <input 
-                            type="email" 
-                            className={`form-control ${errors.correo ? 'is-invalid' : ''}`}
-                            id="correo" 
-                            required 
-                            value={formData.correo}
-                            onChange={handleChange}
-                        />
+                      <label htmlFor="correo" className="form-label fw-bold">Correo *</label>
+                      <input
+                        type="email"
+                        className={`form-control ${errors.correo ? 'is-invalid' : ''}`}
+                        id="correo"
+                        required
+                        value={formData.correo}
+                        onChange={handleChange}
+                      />
                     </div>
                     <div className="col-md-6 mb-3">
-                        <label htmlFor="confirmarCorreo" className="form-label fw-bold">Confirmar Correo *</label>
-                        <input 
-                            type="email" 
-                            className={`form-control ${errors.correo ? 'is-invalid' : ''}`}
-                            id="confirmarCorreo" 
-                            required 
-                            value={formData.confirmarCorreo}
-                            onChange={handleChange}
-                        />
-                        {errors.correo && <div className="invalid-feedback">{errors.correo}</div>}
+                      <label htmlFor="confirmarCorreo" className="form-label fw-bold">Confirmar Correo *</label>
+                      <input
+                        type="email"
+                        className={`form-control ${errors.correo ? 'is-invalid' : ''}`}
+                        id="confirmarCorreo"
+                        required
+                        value={formData.confirmarCorreo}
+                        onChange={handleChange}
+                      />
+                      {errors.correo && <div className="invalid-feedback">{errors.correo}</div>}
                     </div>
                   </div>
                   <div className="row">
                     <div className="col-md-6 mb-3">
-                        <label htmlFor="password" className="form-label fw-bold">Contraseña *</label>
-                        <input 
-                            type="password" 
-                            className={`form-control ${errors.password ? 'is-invalid' : ''}`}
-                            id="password" 
-                            required 
-                            value={formData.password}
-                            onChange={handleChange}
-                        />
+                      <label htmlFor="password" className="form-label fw-bold">Contraseña *</label>
+                      <input
+                        type="password"
+                        className={`form-control ${errors.password ? 'is-invalid' : ''}`}
+                        id="password"
+                        required
+                        value={formData.password}
+                        onChange={handleChange}
+                      />
                     </div>
                     <div className="col-md-6 mb-3">
-                        <label htmlFor="confirmarPassword" className="form-label fw-bold">Confirmar Contraseña *</label>
-                        <input 
-                            type="password" 
-                            className={`form-control ${errors.password ? 'is-invalid' : ''}`}
-                            id="confirmarPassword" 
-                            required 
-                            value={formData.confirmarPassword}
-                            onChange={handleChange}
-                        />
-                        {errors.password && <div className="invalid-feedback">{errors.password}</div>}
+                      <label htmlFor="confirmarPassword" className="form-label fw-bold">Confirmar Contraseña *</label>
+                      <input
+                        type="password"
+                        className={`form-control ${errors.password ? 'is-invalid' : ''}`}
+                        id="confirmarPassword"
+                        required
+                        value={formData.confirmarPassword}
+                        onChange={handleChange}
+                      />
+                      {errors.password && <div className="invalid-feedback">{errors.password}</div>}
                     </div>
                   </div>
                   <div className="mb-3">
-                      <label htmlFor="direccion" className="form-label fw-bold">Dirección *</label>
-                      <textarea 
-                          className="form-control" 
-                          id="direccion" 
-                          rows="2" 
-                          required
-                          value={formData.direccion}
-                          onChange={handleChange}
-                      ></textarea>
+                    <label htmlFor="direccion" className="form-label fw-bold">Dirección *</label>
+                    <textarea
+                      className="form-control"
+                      id="direccion"
+                      rows="2"
+                      required
+                      value={formData.direccion}
+                      onChange={handleChange}
+                    ></textarea>
                   </div>
                   {/* --- FIN CAMPOS ORIGINALES --- */}
 
@@ -214,8 +226,8 @@ function Registro() {
                   <div className="row">
                     <div className="col-md-6 mb-3">
                       <label htmlFor="region" className="form-label fw-bold">Región *</label>
-                      <select 
-                        id="region" 
+                      <select
+                        id="region"
                         className={`form-select ${errors.region ? 'is-invalid' : ''}`}
                         value={formData.region}
                         onChange={handleRegionChange} // Handler especial
@@ -233,7 +245,7 @@ function Registro() {
 
                     <div className="col-md-6 mb-3">
                       <label htmlFor="comuna" className="form-label fw-bold">Comuna *</label>
-                      <select 
+                      <select
                         id="comuna"
                         className={`form-select ${errors.comuna ? 'is-invalid' : ''}`}
                         value={formData.comuna}

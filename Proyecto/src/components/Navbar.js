@@ -1,16 +1,14 @@
 import React from 'react';
-import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
-import { useAuth } from '../context/AuthContext'; // <--- 1. Importar Auth
+import { useAuth } from '../context/AuthContext';
 import { Button } from 'react-bootstrap';
 
 function Navbar() {
-  const location = useLocation();
-  const navigate = useNavigate(); // Hook para redirigir en logout
+  // Ya no necesitamos 'useLocation' aquí
+  const navigate = useNavigate();
   const { cartCount } = useCart();
-  const { currentUser, logout, isAuthenticated } = useAuth(); // <--- 2. Obtener datos de Auth
-
-  const isAdminView = location.pathname.startsWith('/admin');
+  const { currentUser, logout, isAuthenticated } = useAuth();
 
   // Función para manejar el cierre de sesión
   const handleLogout = () => {
@@ -18,73 +16,23 @@ function Navbar() {
     navigate('/login'); // Redirigir al login después de cerrar sesión
   };
 
-  // --- 3. BARRA DE NAVEGACIÓN DEL ADMINISTRADOR ---
-  if (isAdminView) {
-    return (
-      <nav className="navbar navbar-expand-lg navbar-dark bg-purple">
-        <div className="container">
-          <Link className="navbar-brand" to="/admin">
-            <img src="https://cdn-icons-png.freepik.com/256/30/30422.png" alt="Inicio Admin" height="40" />
-            <span>Inicio Admin</span>
-          </Link>
+  // --- ELIMINAMOS EL 'if (isAdminView)' ---
+  // Este componente AHORA SÓLO renderiza la barra de navegación PÚBLICA (tienda)
+  // AdminLayout se encarga de mostrar AdminNavbar.
 
-          {/* Mostrar bienvenida y botón de logout */}
-          {isAuthenticated && currentUser ? (
-            <span className="navbar-text text-white me-auto ms-3">
-              ¡Bienvenido, {currentUser.nombre}!
-            </span>
-          ) : (
-            <span className="navbar-text text-white me-auto ms-3">
-              No autenticado
-            </span>
-          )}
-
-          <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span className="navbar-toggler-icon"></span>
-          </button>
-          <div className="collapse navbar-collapse" id="navbarNav">
-            <ul className="navbar-nav ms-auto">
-              <li className="nav-item"><NavLink className="nav-link" to="/admin">Inicio Admin</NavLink></li>
-              <li className="nav-item"><NavLink className="nav-link" to="/admin/productos">Productos</NavLink></li>
-              <li className="nav-item"><NavLink className="nav-link" to="/admin/usuarios">Usuarios</NavLink></li>
-              <li className="nav-item"><Link className="nav-link" to="/">Salir al Sitio</Link></li>
-              <li className="nav-item">
-                <Button variant="outline-light" size="sm" onClick={handleLogout}>Cerrar Sesión</Button>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </nav>
-    );
-  }
-
-  // --- 4. BARRA DE NAVEGACIÓN DEL CLIENTE ---
   return (
-    <nav className="navbar navbar-expand-lg navbar-dark bg-purple">
+    <nav className="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
       <div className="container">
-        <Link className="navbar-brand itemNavbarInicio" to="/">
-          <img src="https://cdn-icons-png.flaticon.com/512/775/775307.png" alt="Logo" height="40" />
-          <span>Inicio</span>
+        <Link className="navbar-brand" to="/">
+          <img src="https://cdn-icons-png.freepik.com/256/30/30422.png" alt="Logo Perfumería" height="40" />
+          <span className="ms-2">DuocFragancias</span>
         </Link>
-
-        {/* Lógica de bienvenida y Login/Logout */}
-        {isAuthenticated && currentUser ? (
-          <span className="navbar-text text-white ms-3">
-            Hola, {currentUser.nombre}
-          </span>
-        ) : (
-          <Link id="link-login" className="navbar-brand" to="/login">
-            <img src="https://cdn-icons-png.freepik.com/256/30/30422.png" alt="Iniciar sesión" height="40" />
-            <span>Iniciar sesión</span>
-          </Link>
-        )}
-
-        <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
           <span className="navbar-toggler-icon"></span>
         </button>
         <div className="collapse navbar-collapse" id="navbarNav">
           <ul className="navbar-nav ms-auto">
-            <li className="nav-item"><NavLink className="nav-link" to="/">Inicio</NavLink></li>
+            <li className="nav-item"><NavLink className="nav-link" to="/" end>Inicio</NavLink></li>
             <li className="nav-item"><NavLink className="nav-link" to="/tienda">Tienda</NavLink></li>
             <li className="nav-item"><NavLink className="nav-link" to="/categorias">Categorías</NavLink></li>
             <li className="nav-item"><NavLink className="nav-link text-danger fw-bold" to="/ofertas">Ofertas 🔥</NavLink></li>
@@ -98,6 +46,21 @@ function Navbar() {
                 )}
               </NavLink>
             </li>
+
+            {/* --- ¡CORRECCIÓN APLICADA AQUÍ! --- */}
+            {/* 1. Comprueba si está autenticado */}
+            {/* 2. Comprueba si el tipo es "administrador" (el valor exacto que diste) */}
+            {isAuthenticated && currentUser?.tipo === 'administrador' && (
+              <li className="nav-item">
+                <NavLink className="nav-link text-warning fw-bold" to="/admin">
+                  {/* Asegúrate de tener bootstrap-icons si usas la etiqueta <i> */}
+                  <i className="bi bi-shield-lock-fill me-1"></i> 
+                  Panel Admin
+                </NavLink>
+              </li>
+            )}
+            {/* --- FIN DE LA CORRECCIÓN --- */}
+
 
             {/* Mostrar "Ingresar" o "Cerrar Sesión" */}
             {isAuthenticated ? (
