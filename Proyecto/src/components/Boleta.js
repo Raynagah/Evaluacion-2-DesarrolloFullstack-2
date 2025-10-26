@@ -1,11 +1,11 @@
 import React from 'react';
 
-// Función para formatear moneda (sin cambios)
+// Función para formatear moneda
 const formatCurrency = (value) => {
   return new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP' }).format(value);
 };
 
-// Función para formatear fecha (sin cambios)
+// Función para formatear fecha 
 const formatDateTime = (isoString) => {
   const date = new Date(isoString);
   return date.toLocaleString('es-CL', {
@@ -17,17 +17,17 @@ const formatDateTime = (isoString) => {
   });
 };
 
-// Componente de función normal (sin forwardRef)
+// Componente de función normal
 const Boleta = ({ data }) => {
-  
+
   if (!data) return null;
 
   const { numero, fecha, cliente, items, resumen } = data;
 
   return (
-    // Ya no tiene el 'ref' aquí
+
     <div className="boleta-imprimible p-4 border rounded">
-      
+
       {/* --- Encabezado --- */}
       <div className="d-flex justify-content-between align-items-center mb-4">
         <div>

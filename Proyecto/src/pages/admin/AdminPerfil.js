@@ -1,14 +1,11 @@
-// src/pages/admin/AdminPerfil.js
-
 import React from 'react';
-import { useAuth } from '../../context/AuthContext'; // To get current user details
-import NavBar from '../../components/admin/AdminNavbar'; // Admin Navbar
+import { useAuth } from '../../context/AuthContext';
+import NavBar from '../../components/admin/AdminNavbar';
 import { Card, ListGroup, Container, Row, Col } from 'react-bootstrap';
 
 function AdminPerfil() {
-  const { currentUser } = useAuth(); // Get the logged-in user from context
+  const { currentUser } = useAuth(); 
 
-  // Basic check in case currentUser is somehow null
   if (!currentUser) {
     return (
       <>
@@ -19,8 +16,6 @@ function AdminPerfil() {
       </>
     );
   }
-
-  // Helper to display data or a placeholder
   const displayData = (data) => data || <span className="text-muted">No especificado</span>;
 
   return (
@@ -48,7 +43,6 @@ function AdminPerfil() {
                 <ListGroup.Item>
                   <strong>Tipo de Usuario:</strong> <span className="badge bg-danger">{currentUser.tipo}</span>
                 </ListGroup.Item>
-                {/* You can add more fields if they exist in currentUser */}
                 <ListGroup.Item>
                   <strong>Dirección:</strong> {displayData(currentUser.direccion)}
                 </ListGroup.Item>
@@ -59,10 +53,6 @@ function AdminPerfil() {
                   <strong>Comuna:</strong> {displayData(currentUser.comuna)}
                 </ListGroup.Item>
               </ListGroup>
-              {/* Optional: Add an edit button later */}
-              {/* <Card.Body className="text-center">
-                <Button variant="outline-primary">Editar Perfil</Button>
-              </Card.Body> */}
             </Card>
           </Col>
         </Row>

@@ -4,15 +4,11 @@ import { useCart } from '../context/CartContext';
 import { getAllProducts } from '../data/productsAPI'; 
 import '../styles/tienda.css';
 
-// --- CAMBIO AQUÍ ---
-// 1. Movemos la constante FUERA del componente.
-// Ahora es una constante a nivel de módulo y no se vuelve a crear.
 const titulosDeCategoria = {
   'perfumes-varon': 'Perfumes Varón',
   'perfumes-dama': 'Perfumes Dama',
   'perfumes-unisex': 'Perfumes Unisex',
 };
-// --------------------
 
 function Tienda() {
   const [searchParams] = useSearchParams();
@@ -24,7 +20,6 @@ function Tienda() {
   
   const { addToCart } = useCart(); 
 
-  // Este useEffect para cargar productos está perfecto.
   useEffect(() => {
     getAllProducts()
       .then(data => {
@@ -38,9 +33,6 @@ function Tienda() {
       });
   }, []); 
 
-  // --- CAMBIO AQUÍ ---
-  // 2. Este useEffect (el de la línea 70) ya no necesita 'titulosDeCategoria' 
-  // en sus dependencias, porque la variable ahora es externa.
   useEffect(() => {
     const categoriaSeleccionada = searchParams.get('categoria');
 
@@ -57,7 +49,7 @@ function Tienda() {
       setTitulo('Nuestros Perfumes');
     }
 
-  }, [productos, searchParams]); // <-- La advertencia desaparece
+  }, [productos, searchParams]);
 
   
   const formatCurrency = (value) => new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP' }).format(value);

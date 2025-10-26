@@ -1,9 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-// --- 1. ELIMINAR ESTA LÍNEA ---
-// import { createUser } from '../data/usersAPI'; 
-// (AuthContext se encargará de esto)
 
 // 1. Importar los datos de regiones
 import { regionesComunas } from '../data/regionesComunas';
@@ -19,8 +16,8 @@ function Registro() {
     password: '',
     confirmarPassword: '',
     direccion: '',
-    region: '', // <-- NUEVO
-    comuna: ''  // <-- NUEVO
+    region: '',
+    comuna: ''  
   });
 
   const [errors, setErrors] = useState({});
@@ -31,11 +28,9 @@ function Registro() {
 
   const navigate = useNavigate();
 
-  // --- 2. OBTENER 'register' DEL CONTEXTO ---
-  // (Reemplazamos 'login' por 'register')
   const { register } = useAuth();
 
-  // 4. Función GENÉRICA para inputs simples (sin cambios)
+  // 4. Función GENÉRICA para inputs simples
   const handleChange = (e) => {
     const { id, value } = e.target;
     setFormData(prevState => ({
@@ -44,7 +39,7 @@ function Registro() {
     }));
   };
 
-  // 5. Función ESPECIAL para manejar el cambio de REGIÓN (sin cambios)
+  // 5. Función ESPECIAL para manejar el cambio de REGIÓN
   const handleRegionChange = (e) => {
     const regionNombre = e.target.value;
 
@@ -65,7 +60,7 @@ function Registro() {
     }
   };
 
-  // 6. handleSubmit actualizado con TODAS las validaciones (sin cambios)
+  // 6. handleSubmit actualizado con TODAS las validaciones
   const handleSubmit = async (event) => {
     event.preventDefault();
     setErrors({});
@@ -94,7 +89,7 @@ function Registro() {
     }
 
     try {
-      // 7. Se envían TODOS los datos a la API (sin cambios)
+      // 7. Se envían TODOS los datos a la API
       const userData = {
         rut: formData.rut,
         nombre: formData.nombre,
@@ -102,16 +97,10 @@ function Registro() {
         correo: formData.correo,
         password: formData.password,
         direccion: formData.direccion,
-        region: formData.region, // <-- NUEVO
-        comuna: formData.comuna,  // <-- NUEVO
-        // (Ya no es necesario 'tipo: cliente', 
-        //  el AuthContext/register se encarga de eso)
+        region: formData.region,
+        comuna: formData.comuna
       };
 
-      // --- 3. ¡AQUÍ ESTÁ LA CORRECCIÓN PRINCIPAL! ---
-      // Reemplazamos las dos llamadas (createUser y login)
-      // por UNA sola llamada a la función 'register' del contexto.
-      // Esta función hace AMBAS cosas: guarda permanentemente E inicia sesión.
       await register(userData);
 
       alert('¡Registro exitoso! Bienvenido/a.');
@@ -119,8 +108,6 @@ function Registro() {
 
     } catch (error) {
       console.error("Error en el registro:", error);
-      // Si el error viene de 'createUser' (ej: email duplicado),
-      // lo mostramos aquí.
       setErrors({ general: error.message || 'Hubo un error al crear la cuenta. Por favor, intente más tarde.' });
       setLoading(false);
     }
@@ -143,7 +130,6 @@ function Registro() {
 
                 <form onSubmit={handleSubmit}>
 
-                  {/* --- CAMPOS ORIGINALES --- */}
                   <div className="row">
                     <div className="col-md-6 mb-3">
                       <label htmlFor="rut" className="form-label fw-bold">RUT *</label>
@@ -219,10 +205,6 @@ function Registro() {
                       onChange={handleChange}
                     ></textarea>
                   </div>
-                  {/* --- FIN CAMPOS ORIGINALES --- */}
-
-
-                  {/* --- NUEVOS CAMPOS AÑADIDOS --- */}
                   <div className="row">
                     <div className="col-md-6 mb-3">
                       <label htmlFor="region" className="form-label fw-bold">Región *</label>
@@ -230,7 +212,7 @@ function Registro() {
                         id="region"
                         className={`form-select ${errors.region ? 'is-invalid' : ''}`}
                         value={formData.region}
-                        onChange={handleRegionChange} // Handler especial
+                        onChange={handleRegionChange}
                         required
                       >
                         <option value="" disabled>Seleccione una región...</option>
@@ -249,9 +231,9 @@ function Registro() {
                         id="comuna"
                         className={`form-select ${errors.comuna ? 'is-invalid' : ''}`}
                         value={formData.comuna}
-                        onChange={handleChange} // Handler genérico
+                        onChange={handleChange} 
                         required
-                        disabled={comunasDisponibles.length === 0} // Deshabilitado
+                        disabled={comunasDisponibles.length === 0}
                       >
                         <option value="" disabled>
                           {formData.region ? "Seleccione una comuna..." : "Primero elija una región..."}
@@ -265,7 +247,6 @@ function Registro() {
                       {errors.comuna && <div className="invalid-feedback">{errors.comuna}</div>}
                     </div>
                   </div>
-                  {/* --- FIN NUEVOS CAMPOS --- */}
 
                   <div className="d-flex justify-content-between mt-4">
                     <Link to="/login" className="btn btn-outline-secondary btn-lg">Cancelar</Link>

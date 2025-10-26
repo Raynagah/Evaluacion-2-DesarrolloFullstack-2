@@ -1,10 +1,7 @@
-import React, { useState, useEffect } from 'react'; // <--- Importar hooks
+import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { useCart } from '../context/CartContext'; // <--- Importar hook de carrito
-import { getProductById } from '../data/productsAPI'; // <--- 1. Importar la nueva API
-
-// --- 2. ELIMINAMOS la lista 'allProducts' de aquí ---
-// const allProducts = [ ... ];
+import { useCart } from '../context/CartContext'; 
+import { getProductById } from '../data/productsAPI'; 
 
 function DetalleProducto() {
   const { id } = useParams(); // Obtenemos el ID de la URL
@@ -71,10 +68,9 @@ function DetalleProducto() {
         <div className="col-md-7">
           <h2 className="text-purple fw-bold">{producto.name}</h2>
           
-          {/* Mostramos los detalles que vienen de la API */}
           <p><strong>Género:</strong> {producto.genero}</p>
           <p><strong>Tipo:</strong> {producto.tipo}</p>
-          <p>{producto.description}</p> {/* Añadimos la descripción */}
+          <p>{producto.description}</p>
           
           <p className="text-decoration-line-through text-muted">{formatCurrency(producto.normalPrice)}</p>
           <p className="fs-3 fw-bold text-danger">{formatCurrency(producto.price)}</p>

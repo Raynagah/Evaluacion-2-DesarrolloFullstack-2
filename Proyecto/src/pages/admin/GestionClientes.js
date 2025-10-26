@@ -1,15 +1,10 @@
-// src/pages/admin/GestionClientes.js
-
 import React, { useState, useEffect } from 'react';
 import { Accordion } from 'react-bootstrap';
-// APIs
 import { getAllUsers } from '../../data/usersAPI';
 import { getAllBoletas } from '../../data/boletasAPI';
-// Componentes
 import Boleta from '../../components/Boleta'; 
 import NavBar from '../../components/admin/AdminNavbar'; 
 
-// --- Helpers de Formato (sin cambios) ---
 const formatCurrency = (value) => {
   return new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP' }).format(value);
 };
@@ -23,7 +18,6 @@ const formatDateTime = (isoString) => {
     minute: '2-digit'
   });
 };
-// --------------------------------------------------------
 
 function GestionClientes() {
   const [clientesConHistorial, setClientesConHistorial] = useState([]);
@@ -35,7 +29,7 @@ function GestionClientes() {
       try {
         setLoading(true);
         setError(null);
-        console.log("GestionClientes: Cargando datos..."); // Debug
+        console.log("GestionClientes: Cargando datos...");
 
         // 1. Obtenemos todos los usuarios y todas las boletas
         const [allUsers, allBoletas] = await Promise.all([
@@ -44,22 +38,17 @@ function GestionClientes() {
         ]);
 
         // --- 2. CONSOLE.LOGS PARA DEPURACIÓN ---
-        // ¡Estos son los más importantes!
         console.log("GestionClientes: Usuarios recibidos:", allUsers);
         console.log("GestionClientes: Boletas recibidas:", allBoletas);
         // ----------------------------------------
 
         // 3. Filtramos solo los usuarios que son 'cliente'
         const clientes = allUsers.filter(u => u.tipo === 'cliente');
-        console.log("GestionClientes: Clientes filtrados:", clientes); // Debug
+        console.log("GestionClientes: Clientes filtrados:", clientes);
 
         // 4. Cruzamos los datos
         const historialCompleto = clientes.map(cliente => {
           
-          // --- 5. ¡CORRECCIÓN EN EL FILTRO! ---
-          // Comparamos el correo de la boleta (boleta.cliente.correo)
-          // con el email O el correo del usuario (cliente.email || cliente.correo)
-          // Esto hace la búsqueda más robusta.
           const boletasDelCliente = allBoletas
             .filter(boleta => boleta.cliente.correo === (cliente.email || cliente.correo))
             .sort((a, b) => new Date(b.fecha) - new Date(a.fecha)); 
@@ -74,7 +63,7 @@ function GestionClientes() {
         });
         
         historialCompleto.sort((a, b) => b.boletas.length - a.boletas.length);
-        console.log("GestionClientes: Historial final:", historialCompleto); // Debug
+        console.log("GestionClientes: Historial final:", historialCompleto);
 
         setClientesConHistorial(historialCompleto);
 
@@ -89,7 +78,6 @@ function GestionClientes() {
     fetchData();
   }, []);
 
-  // --- Renderizado de Loading y Error (sin cambios) ---
   if (loading) {
     return (
       <>
@@ -111,7 +99,6 @@ function GestionClientes() {
       </>
     );
   }
-  // ---------------------------------------------------
 
   return (
     <>
@@ -119,8 +106,6 @@ function GestionClientes() {
       <main className="container my-5">
         <h1 className="text-purple mb-4">Historial de Compras por Cliente</h1>
         
-        {/* --- 6. MENSAJE DE ESTADO VACÍO --- */}
-        {/* Si no hay loading, no hay error, PERO la lista está vacía */}
         {clientesConHistorial.length === 0 ? (
           <div className="alert alert-info text-center">
             <p className="h5">No se encontraron clientes con historial de compras.</p>

@@ -1,25 +1,20 @@
-// src/pages/Login.js
-
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext'; // Importamos el hook
-// import '../styles/login.css'; // (Asumo que tienes estilos aquí)
+import { useAuth } from '../context/AuthContext';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 function Login() {
   // Estados para los campos del formulario
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   
-  // --- ¡AQUÍ ESTÁ LA CLAVE! ---
   // Estados para el error y la carga
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
-  // -----------------------------
 
   const navigate = useNavigate();
-  const { login } = useAuth(); // Obtenemos la función 'login' del contexto
+  const { login } = useAuth();
 
-  // --- ¡AQUÍ ESTÁ LA CORRECCIÓN! ---
   // Envolvemos la lógica en un try...catch asíncrono
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -34,17 +29,14 @@ function Login() {
       navigate('/'); 
       
     } catch (err) {
-      // 3. Si 'login()' rechaza la promesa, ¡la atrapamos aquí!
-      // Guardamos el mensaje de error (ej: "Credenciales inválidas.") en el estado
       setError(err.message); 
       
     } finally {
-      // 4. Se ejecuta siempre, con o sin error
+      // 3. Se ejecuta siempre, con o sin error
       setLoading(false); 
     }
   };
 
-  // El JSX lo he reconstruido basándome en el log de error que me diste
   return (
     <section className="login-section py-5">
       <div className="container">
@@ -56,15 +48,13 @@ function Login() {
               </div>
               <div className="card-body p-4">
                 
-                {/* --- ¡AQUÍ SE MOSTRARÁ EL ERROR! --- */}
-                {/* Esto es lo que la prueba está buscando */}
                 {error && (
                   <div className="alert alert-danger" role="alert">
                     {error}
                   </div>
                 )}
 
-                <form onSubmit={handleSubmit}> {/* Asignamos el handleSubmit */}
+                <form onSubmit={handleSubmit}>
                   <div className="mb-3">
                     <label className="form-label" htmlFor="email">
                       Correo Electrónico

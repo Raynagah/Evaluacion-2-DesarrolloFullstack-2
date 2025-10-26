@@ -1,10 +1,8 @@
-// src/data/usersAPI.js
-
 // --- 1. CLAVE DE LOCALSTORAGE ---
 const USERS_STORAGE_KEY = 'users_db';
 
 // --- 2. DATOS INICIALES (SI LOCALSTORAGE ESTÁ VACÍO) ---
-// Estos solo se usarán la primera vez o si borras localStorage
+// Estos solo se usarán la primera vez o si borramos localStorage
 const initialUsers = [
   {
     id: 1,
@@ -12,7 +10,7 @@ const initialUsers = [
     nombre: 'Admin',
     apellidos: 'Principal',
     correo: 'admin@duoc.cl',
-    password: 'admin', // En una app real, NUNCA guardarías contraseñas así
+    password: 'admin',
     tipo: 'administrador',
     fechaNacimiento: '1990-01-01',
     region: 'Los Lagos',
@@ -34,11 +32,8 @@ const initialUsers = [
   }
 ];
 
-// --- 3. FUNCIONES CRUD (AHORA CON LOCALSTORAGE) ---
+// --- 3. FUNCIONES CRUD CON LOCALSTORAGE ---
 
-/**
- * (R)EAD: Leer todos los usuarios desde localStorage
- */
 export const getAllUsers = () => {
   return new Promise((resolve) => {
     const usersJSON = localStorage.getItem(USERS_STORAGE_KEY);
@@ -61,9 +56,7 @@ export const getAllUsers = () => {
   });
 };
 
-/**
- * (C)REATE: Crear un nuevo usuario y guardarlo en localStorage
- */
+//Crear nuevo usuario
 export const createUser = (userData) => {
   // Usamos async/await dentro de la promesa para leer antes de escribir
   return new Promise(async (resolve, reject) => { 
@@ -101,9 +94,7 @@ export const createUser = (userData) => {
   });
 };
 
-/**
- * (U)PDATE: Actualizar un usuario existente en localStorage
- */
+//Actualizar usuario
 export const updateUser = (id, updates) => {
   return new Promise(async (resolve, reject) => {
     try {
@@ -139,7 +130,7 @@ export const updateUser = (id, updates) => {
         // Devolver el usuario actualizado (sin la contraseña por seguridad?)
         // const { password, ...userToReturn } = updatedUser; 
         // resolve(userToReturn); 
-        resolve(updatedUser); // O devolverlo completo si lo necesitas
+        resolve(updatedUser); // O devolverlo completo si lo necesitamos
 
       } else {
         reject(new Error('No se pudo actualizar: Usuario no encontrado'));
@@ -151,9 +142,7 @@ export const updateUser = (id, updates) => {
   });
 };
 
-/**
- * (D)ELETE: Eliminar un usuario de localStorage
- */
+//Eliminar usuario
 export const deleteUser = (id) => {
   return new Promise(async (resolve, reject) => {
     try {
@@ -179,9 +168,7 @@ export const deleteUser = (id) => {
   });
 };
 
-/**
- * (R)EAD: Obtener un usuario por su ID (función extra útil)
- */
+//Obtener usuario por ID
 export const getUserById = (id) => {
   return new Promise(async (resolve, reject) => {
     try {

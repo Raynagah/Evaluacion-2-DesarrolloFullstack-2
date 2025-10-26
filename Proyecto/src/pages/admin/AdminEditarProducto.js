@@ -1,9 +1,6 @@
 import React, { useState, useEffect } from 'react';
-// 1. Importamos los hooks necesarios
 import { useParams, useNavigate } from 'react-router-dom';
-// 2. Importamos las funciones de la API
 import { getProductById, updateProduct } from '../../data/productsAPI';
-// 3. Importamos los estilos (crearemos este CSS)
 import '../../styles/AdminForm.css';
 import NavBar from '../../components/admin/AdminNavbar';
 
@@ -64,7 +61,6 @@ function AdminEditarProducto() {
 
   if (loading) {
     return (
-      // --- 1. AÑADIDO NAVBAR ---
       <>
         <NavBar />
         <div className="d-flex justify-content-center align-items-center" style={{ height: '80vh' }}>
@@ -78,7 +74,6 @@ function AdminEditarProducto() {
 
   if (error && !producto) {
     return (
-      // --- 2. AÑADIDO NAVBAR ---
       <>
         <NavBar />
         <div className="container p-4"><div className="alert alert-danger">{error}</div></div>
@@ -88,7 +83,6 @@ function AdminEditarProducto() {
 
   // 9. Renderizado del formulario (solo si el producto se cargó)
   return (
-    // --- 3. AÑADIDO NAVBAR ---
     <>
       <NavBar />
       <div className="container-fluid p-4 admin-form-container">

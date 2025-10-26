@@ -1,31 +1,23 @@
-// src/pages/admin/AdminReportes.js
-
 import React, { useState, useEffect } from 'react';
 import { Button, Card, Table, Spinner, Alert, Row, Col } from 'react-bootstrap';
-// APIs
 import { getAllBoletas } from '../../data/boletasAPI';
 import { getAllProducts } from '../../data/productsAPI';
-// Components
-import NavBar from '../../components/admin/AdminNavbar'; // Admin Navbar
+import NavBar from '../../components/admin/AdminNavbar';
 
-// --- Helpers (you might already have these) ---
 const formatCurrency = (value) => {
   return new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP' }).format(value);
 };
 const formatDateTime = (isoString) => {
   const date = new Date(isoString);
-  return date.toLocaleString('es-CL', { /* your options */ });
+  return date.toLocaleString('es-CL');
 };
-const LOW_STOCK_THRESHOLD = 10; // Same as your dashboard
-// ---------------------------------------------
+const LOW_STOCK_THRESHOLD = 10;
 
 function AdminReportes() {
-  const [reportType, setReportType] = useState(null); // 'sales', 'stock', or null
+  const [reportType, setReportType] = useState(null);
   const [reportData, setReportData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-
-  // --- Report Generation Logic ---
 
   const generateSalesReport = async () => {
     setLoading(true);
@@ -38,12 +30,10 @@ function AdminReportes() {
         return;
       }
 
-      // Calculate totals
       const totalSales = boletas.reduce((sum, b) => sum + b.resumen.total, 0);
       const totalOrders = boletas.length;
       const averageOrderValue = totalOrders > 0 ? totalSales / totalOrders : 0;
 
-      // Find top selling items (basic example: count occurrences)
       const itemCounts = {};
       boletas.forEach(boleta => {
         boleta.items.forEach(item => {
@@ -77,15 +67,15 @@ function AdminReportes() {
     try {
       const products = await getAllProducts();
       if (!products || products.length === 0) {
-         setReportData({ type: 'stock', message: 'No hay productos para generar el reporte.' });
-         return;
+        setReportData({ type: 'stock', message: 'No hay productos para generar el reporte.' });
+        return;
       }
 
       const lowStockProducts = products
         .filter(p => p.stock < LOW_STOCK_THRESHOLD)
-        .sort((a, b) => a.stock - b.stock); // Show lowest first
+        .sort((a, b) => a.stock - b.stock);
 
-      const totalInventoryValue = products.reduce((sum, p) => sum + (p.price * p.stock), 0); // Using sale price
+      const totalInventoryValue = products.reduce((sum, p) => sum + (p.price * p.stock), 0);
 
       setReportData({
         type: 'stock',
@@ -102,7 +92,6 @@ function AdminReportes() {
     }
   };
 
-  // --- Handlers for Buttons ---
   const handleSelectReport = (type) => {
     setReportType(type);
     if (type === 'sales') {
@@ -110,11 +99,10 @@ function AdminReportes() {
     } else if (type === 'stock') {
       generateStockReport();
     } else {
-      setReportData(null); // Clear data if no type selected
+      setReportData(null);
     }
   };
 
-  // --- Render Report Content ---
   const renderReport = () => {
     if (loading) {
       return (
@@ -125,17 +113,16 @@ function AdminReportes() {
       );
     }
     if (error) {
-        return <Alert variant="danger" className="mt-4">{error}</Alert>;
+      return <Alert variant="danger" className="mt-4">{error}</Alert>;
     }
     if (!reportData) {
-        return <Alert variant="info" className="mt-4">Seleccione un tipo de reporte para comenzar.</Alert>;
+      return <Alert variant="info" className="mt-4">Seleccione un tipo de reporte para comenzar.</Alert>;
     }
     if (reportData.message) {
-        return <Alert variant="warning" className="mt-4">{reportData.message}</Alert>;
+      return <Alert variant="warning" className="mt-4">{reportData.message}</Alert>;
     }
 
 
-    // --- Sales Report ---
     if (reportData.type === 'sales') {
       return (
         <Card className="mt-4 shadow-sm">
@@ -158,39 +145,38 @@ function AdminReportes() {
             <hr />
             <h5>Top 5 Productos Más Vendidos (por cantidad)</h5>
             {reportData.topItems.length > 0 ? (
-                <Table striped bordered size="sm">
-                  <thead>
-                    <tr><th>Producto</th><th>Cantidad Vendida</th></tr>
-                  </thead>
-                  <tbody>
-                    {reportData.topItems.map(([name, qty]) => (
-                      <tr key={name}><td>{name}</td><td>{qty}</td></tr>
-                    ))}
-                  </tbody>
-                </Table>
+              <Table striped bordered size="sm">
+                <thead>
+                  <tr><th>Producto</th><th>Cantidad Vendida</th></tr>
+                </thead>
+                <tbody>
+                  {reportData.topItems.map(([name, qty]) => (
+                    <tr key={name}><td>{name}</td><td>{qty}</td></tr>
+                  ))}
+                </tbody>
+              </Table>
             ) : <p className="text-muted">No hay datos suficientes.</p>}
           </Card.Body>
         </Card>
       );
     }
 
-    // --- Stock Report ---
     if (reportData.type === 'stock') {
       return (
         <Card className="mt-4 shadow-sm">
           <Card.Header className="bg-warning text-dark">Reporte de Stock Crítico ({'<'} {LOW_STOCK_THRESHOLD} unidades)</Card.Header>
           <Card.Body>
-             <Row className="mb-3 text-center">
-               <Col md={6}>
-                 <h5>Productos Totales</h5>
-                 <p className="fs-4 fw-bold">{reportData.totalProducts}</p>
-               </Col>
-               <Col md={6}>
-                 <h5>Valor Total Inventario (aprox.)</h5>
-                 <p className="fs-4 text-primary fw-bold">{formatCurrency(reportData.totalInventoryValue)}</p>
-               </Col>
+            <Row className="mb-3 text-center">
+              <Col md={6}>
+                <h5>Productos Totales</h5>
+                <p className="fs-4 fw-bold">{reportData.totalProducts}</p>
+              </Col>
+              <Col md={6}>
+                <h5>Valor Total Inventario (aprox.)</h5>
+                <p className="fs-4 text-primary fw-bold">{formatCurrency(reportData.totalInventoryValue)}</p>
+              </Col>
             </Row>
-             <hr />
+            <hr />
             <h5>Productos con Bajo Stock</h5>
             {reportData.lowStockProducts.length > 0 ? (
               <Table striped bordered hover size="sm">
@@ -215,7 +201,7 @@ function AdminReportes() {
       );
     }
 
-    return null; // Should not happen
+    return null;
   };
 
 
@@ -226,25 +212,24 @@ function AdminReportes() {
         <h1 className="text-purple mb-4">Generador de Reportes</h1>
 
         <Card className="shadow-sm border-0 mb-4">
-            <Card.Body className="d-flex justify-content-center gap-3">
-                 <Button
-                    variant={reportType === 'sales' ? "purple" : "outline-purple"}
-                    onClick={() => handleSelectReport('sales')}
-                    disabled={loading}
-                 >
-                    <i className="bi bi-graph-up me-2"></i>Reporte de Ventas
-                 </Button>
-                 <Button
-                    variant={reportType === 'stock' ? "warning" : "outline-warning"}
-                    onClick={() => handleSelectReport('stock')}
-                    disabled={loading}
-                 >
-                    <i className="bi bi-box-seam me-2"></i>Reporte de Stock
-                 </Button>
-            </Card.Body>
+          <Card.Body className="d-flex justify-content-center gap-3">
+            <Button
+              variant={reportType === 'sales' ? "purple" : "outline-purple"}
+              onClick={() => handleSelectReport('sales')}
+              disabled={loading}
+            >
+              <i className="bi bi-graph-up me-2"></i>Reporte de Ventas
+            </Button>
+            <Button
+              variant={reportType === 'stock' ? "warning" : "outline-warning"}
+              onClick={() => handleSelectReport('stock')}
+              disabled={loading}
+            >
+              <i className="bi bi-box-seam me-2"></i>Reporte de Stock
+            </Button>
+          </Card.Body>
         </Card>
 
-        {/* --- Render Report Content --- */}
         {renderReport()}
 
       </main>

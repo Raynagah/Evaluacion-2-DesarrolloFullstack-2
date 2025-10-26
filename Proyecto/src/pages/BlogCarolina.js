@@ -10,7 +10,7 @@ function BlogCarolina() {
         </h1>
         <figure className="my-4 text-center">
           <img 
-            src="https://placehold.co/800x500/d1c4e9/4a148c?text=Perfumes+CH+Mujer" 
+            src="../../assets/img/CHPerfumesMujer.webp" 
             className="img-fluid rounded shadow" 
             alt="Perfumes Carolina Herrera"
           />
@@ -34,7 +34,7 @@ function BlogCarolina() {
 
         <figure className="my-4 text-center">
           <img 
-            src="https://placehold.co/800x500/d1c4e9/4a148c?text=Perfumes+CH+Hombre" 
+            src="../../assets/img/CHPerfumesHombre.avif" 
             className="img-fluid rounded shadow" 
             alt="Perfumes Carolina Herrera Masculinos"
           />

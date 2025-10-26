@@ -1,8 +1,5 @@
-// src/data/boletasAPI.js
-
-// Usamos localStorage para simular una base de datos persistente
 const BOLETAS_STORAGE_KEY = 'boletas_db';
-const initialBoletas = []; // Puedes poner boletas iniciales aquí si quieres
+const initialBoletas = []; 
 
 /**
  * Obtiene todas las boletas guardadas y las ordena por fecha (más nuevas primero).
@@ -27,13 +24,12 @@ export const getAllBoletas = () => {
         localStorage.setItem(BOLETAS_STORAGE_KEY, JSON.stringify(boletas));
       }
 
-      // --- ¡CORRECCIÓN CLAVE: ORDENAR ANTES DE DEVOLVER! ---
       // Ordena por fecha DECRECIENTE (más nuevas primero)
       const sortedBoletas = [...boletas].sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
       // --------------------------------------------------
 
       resolve(sortedBoletas); // Devolvemos la lista ORDENADA
-    }, 500); // Retraso simulado de 500ms
+    }, 500);
   });
 };
 
@@ -53,9 +49,8 @@ export const createBoleta = (boletaData) => {
           try {
               currentBoletas = JSON.parse(currentBoletasJSON);
           } catch (error) {
-              console.error("Error al parsear boletas existentes en createBoleta:", error);
-              // Podrías decidir rechazar o continuar con una lista vacía
-              currentBoletas = [...initialBoletas]; // O empezar de nuevo si hay error grave
+              console.error("Error al parsear boletas existentes en createBoleta:", error);   
+              currentBoletas = [...initialBoletas];
           }
       } else {
           currentBoletas = [...initialBoletas]; // Empezar con iniciales si no hay nada
@@ -76,22 +71,3 @@ export const createBoleta = (boletaData) => {
     }
   });
 };
-
-// --- Opcional: Otras funciones como getBoletaById, deleteBoleta, etc. ---
-/*
-export const getBoletaByNumero = (numero) => {
-  return new Promise(async (resolve, reject) => {
-    try {
-        const boletas = await getAllBoletas(); // Obtiene la lista ordenada
-        const boleta = boletas.find(b => b.numero === numero);
-        if (boleta) {
-            resolve(boleta);
-        } else {
-            reject(new Error('Boleta no encontrada.'));
-        }
-    } catch (error) {
-        reject(error);
-    }
-  });
-};
-*/

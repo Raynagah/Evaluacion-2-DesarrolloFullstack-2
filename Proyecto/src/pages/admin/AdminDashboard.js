@@ -1,5 +1,3 @@
-// src/pages/admin/AdminDashboard.js
-
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { getAllBoletas } from '../../data/boletasAPI';
@@ -7,7 +5,7 @@ import { getAllProducts } from '../../data/productsAPI';
 import { getAllUsers } from '../../data/usersAPI';
 import '../../styles/AdminDashboard.css';
 import NavBar from '../../components/admin/AdminNavbar';
-import { Spinner } from 'react-bootstrap'; // Asegúrate de importar Spinner
+import { Spinner } from 'react-bootstrap';
 
 const formatCurrency = (value) => new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP' }).format(value);
 const LOW_STOCK_THRESHOLD = 10;
@@ -15,11 +13,10 @@ const LOW_STOCK_THRESHOLD = 10;
 function AdminDashboard() {
   const [stats, setStats] = useState({
     ventasTotales: 0,
-    totalBoletas: 0, // Renombrado para claridad
+    totalBoletas: 0, 
     totalClientes: 0,
     stockTotal: 0
   });
-  // --- Renombrado para claridad ---
   const [recentBoletas, setRecentBoletas] = useState([]);
   const [lowStockProducts, setLowStockProducts] = useState([]);
   const [loading, setLoading] = useState(true);

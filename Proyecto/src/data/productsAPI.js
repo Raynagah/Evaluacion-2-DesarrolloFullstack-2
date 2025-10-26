@@ -1,4 +1,3 @@
-// src/data/productsAPI.js
 
 // --- 1. CLAVE PARA GUARDAR EN LOCALSTORAGE ---
 const PRODUCTS_STORAGE_KEY = 'products_db';
@@ -16,7 +15,7 @@ const initialProducts = [
     genero: 'Masculino',
     categoriaId: 'perfumes-varon',
     tipo: 'Eau de Toilette',
-    stock: 20, // <-- Valor inicial
+    stock: 20,
     description: 'Una fragancia icónica y extravagante, que representa el lujo y el poder. Notas de cuero especiado, mandarina y canela.'
   },
   {
@@ -205,9 +204,6 @@ const initialProducts = [
 
 // --- 3. FUNCIONES CRUD USANDO LOCALSTORAGE ---
 
-/**
- * (R)EAD: Leer todos los productos desde localStorage
- */
 export const getAllProducts = () => {
   return new Promise((resolve) => {
     // Simulamos un pequeño retraso
@@ -227,13 +223,11 @@ export const getAllProducts = () => {
         localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(products));
       }
       resolve(products);
-    }, 500); // Mantenemos el retraso de 500ms
+    }, 500);
   });
 };
 
-/**
- * (R)EAD: Leer un solo producto por ID (ahora usa getAllProducts)
- */
+
 export const getProductById = (id) => {
   return new Promise(async (resolve, reject) => { // Usamos async para esperar a getAllProducts
     try {
@@ -253,9 +247,7 @@ export const getProductById = (id) => {
   });
 };
 
-/**
- * (C)REATE: Crear un nuevo producto y guardarlo en localStorage
- */
+
 export const createProduct = (productData) => {
   return new Promise(async (resolve, reject) => {
     try {
@@ -282,9 +274,7 @@ export const createProduct = (productData) => {
   });
 };
 
-/**
- * (U)PDATE: Actualizar un producto existente en localStorage
- */
+
 export const updateProduct = (id, updates) => {
   return new Promise(async (resolve, reject) => {
     try {
@@ -317,9 +307,7 @@ export const updateProduct = (id, updates) => {
   });
 };
 
-/**
- * (D)ELETE: Eliminar un producto de localStorage
- */
+
 export const deleteProduct = (id) => {
   return new Promise(async (resolve, reject) => {
     try {

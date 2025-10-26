@@ -8,9 +8,8 @@ function BlogArmani() {
         <h1 className="text-purple fw-bold mb-3">Muere Giorgio Armani, el legendario diseñador italiano que revolucionó el mundo de la moda</h1>
 
         <figure className="my-4 text-center">
-          {/* NOTA: Reemplazo la imagen local con un placeholder. Ajusta la ruta a tu imagen en el proyecto. */}
           <img 
-            src="https://placehold.co/800x500/c7a5c8/4a148c?text=Giorgio+Armani" 
+            src="../../assets/img/Giorgio-Armani.webp" 
             className="img-fluid rounded shadow" 
             alt="Giorgio Armani en una de sus últimas apariciones"
           />

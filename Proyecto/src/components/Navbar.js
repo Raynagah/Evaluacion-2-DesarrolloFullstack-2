@@ -5,21 +5,16 @@ import { useAuth } from '../context/AuthContext';
 import { Button } from 'react-bootstrap';
 
 function Navbar() {
-  // Ya no necesitamos 'useLocation' aquí
   const navigate = useNavigate();
   const { cartCount } = useCart();
   const { currentUser, logout, isAuthenticated } = useAuth();
-
   // Función para manejar el cierre de sesión
   const handleLogout = () => {
     logout();
     navigate('/login'); // Redirigir al login después de cerrar sesión
   };
-
-  // --- ELIMINAMOS EL 'if (isAdminView)' ---
-  // Este componente AHORA SÓLO renderiza la barra de navegación PÚBLICA (tienda)
+  // Este componente solo renderiza la barra de navegación pública
   // AdminLayout se encarga de mostrar AdminNavbar.
-
   return (
     <nav className="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
       <div className="container">
@@ -37,7 +32,6 @@ function Navbar() {
             <li className="nav-item"><NavLink className="nav-link" to="/categorias">Categorías</NavLink></li>
             <li className="nav-item"><NavLink className="nav-link text-danger fw-bold" to="/ofertas">Ofertas 🔥</NavLink></li>
             <li className="nav-item"><NavLink className="nav-link" to="/blogs">Blogs</NavLink></li>
-
             <li className="nav-item">
               <NavLink className="nav-link" to="/carrito">
                 Carrito
@@ -46,22 +40,15 @@ function Navbar() {
                 )}
               </NavLink>
             </li>
-
-            {/* --- ¡CORRECCIÓN APLICADA AQUÍ! --- */}
-            {/* 1. Comprueba si está autenticado */}
-            {/* 2. Comprueba si el tipo es "administrador" (el valor exacto que diste) */}
             {isAuthenticated && currentUser?.tipo === 'administrador' && (
               <li className="nav-item">
                 <NavLink className="nav-link text-warning fw-bold" to="/admin">
-                  {/* Asegúrate de tener bootstrap-icons si usas la etiqueta <i> */}
-                  <i className="bi bi-shield-lock-fill me-1"></i> 
+
+                  <i className="bi bi-shield-lock-fill me-1"></i>
                   Panel Admin
                 </NavLink>
               </li>
             )}
-            {/* --- FIN DE LA CORRECCIÓN --- */}
-
-
             {/* Mostrar "Ingresar" o "Cerrar Sesión" */}
             {isAuthenticated ? (
               <li className="nav-item">

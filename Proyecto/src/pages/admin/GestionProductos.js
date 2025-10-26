@@ -1,14 +1,7 @@
-// src/pages/admin/GestionProductos.js
-
 import React, { useState, useEffect } from 'react';
-// --- ¡CORRECCIÓN AQUÍ! ---
-// Añadimos Spinner, Row, Col a las importaciones
 import { Button, Modal, Form, Table, Alert, Image, Spinner, Row, Col } from 'react-bootstrap';
-// --------------------------
-// APIs
 import { getAllProducts, createProduct, updateProduct, deleteProduct } from '../../data/productsAPI';
-// Componentes
-import NavBar from '../../components/admin/AdminNavbar'; // Navbar de Admin
+import NavBar from '../../components/admin/AdminNavbar';
 
 // Estado inicial del formulario
 const initialFormState = {
@@ -18,7 +11,7 @@ const initialFormState = {
   normalPrice: '',
   stock: '',
   image: '',
-  categoriaId: 'perfumes-dama', // Valor por defecto
+  categoriaId: 'perfumes-dama',
   genero: '',
   description: ''
 };
@@ -54,7 +47,6 @@ function GestionProductos() {
     loadProducts();
   }, []);
 
-  // --- Lógica del Modal ---
   const handleCloseModal = () => {
     setShowModal(false);
     setEditingProduct(null);
@@ -85,7 +77,6 @@ function GestionProductos() {
     setShowModal(true);
   };
 
-  // --- Lógica del Formulario ---
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
@@ -122,7 +113,6 @@ function GestionProductos() {
     }
   };
 
-  // --- Lógica de Eliminación ---
   const handleDelete = async (id, name) => {
     if (window.confirm(`¿Estás seguro de eliminar el producto "${name}"?`)) {
       try {
@@ -137,7 +127,6 @@ function GestionProductos() {
   };
 
 
-  // --- Renderizado ---
   return (
     <>
       <NavBar />
@@ -153,7 +142,6 @@ function GestionProductos() {
         {error && !showModal && <Alert variant="danger" onClose={() => setError(null)} dismissible>{error}</Alert>}
 
         {loading ? (
-          // --- 'Spinner' ahora está definido ---
           <div className="text-center"><Spinner animation="border" variant="purple" /></div>
         ) : (
           <div className="table-responsive shadow-sm">
@@ -210,7 +198,7 @@ function GestionProductos() {
           </div>
         )}
 
-        {/* --- Modal Crear/Editar (Row y Col ahora están definidos) --- */}
+        {/* Modal Crear/Editar */}
         <Modal show={showModal} onHide={handleCloseModal} size="lg">
           <Form onSubmit={handleSubmit}>
             <Modal.Header closeButton className="bg-purple text-white">

@@ -1,21 +1,16 @@
-// src/pages/admin/GestionUsuarios.js
-
 import React, { useState, useEffect } from 'react';
 import { Button, Modal, Form, Table, Alert } from 'react-bootstrap';
-// APIs
 import { getAllUsers, createUser, updateUser, deleteUser } from '../../data/usersAPI';
-import { regionesComunas } from '../../data/regionesComunas'; // Para los selects
-// Componentes
-import NavBar from '../../components/admin/AdminNavbar'; // Navbar de Admin
+import { regionesComunas } from '../../data/regionesComunas';
+import NavBar from '../../components/admin/AdminNavbar';
 
 // Estado inicial del formulario (vacío para creación)
 const initialFormState = {
   nombre: '',
   apellidos: '',
   correo: '',
-  password: '', // Dejar vacío al editar para no forzar cambio
-  tipo: 'cliente', // Por defecto creamos clientes
-  // Puedes añadir más campos si los necesitas (RUT, dirección, etc.)
+  password: '',
+  tipo: 'cliente',
   rut: '',
   direccion: '',
   region: '',
@@ -27,10 +22,10 @@ function GestionUsuarios() {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState(initialFormState);
-  const [editingUser, setEditingUser] = useState(null); // null = creando, objeto = editando
-  const [error, setError] = useState(null); // Para errores del formulario/API
-  const [success, setSuccess] = useState(null); // Para mensajes de éxito
-  const [comunasDisponibles, setComunasDisponibles] = useState([]); // Para el select de comunas
+  const [editingUser, setEditingUser] = useState(null);
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
+  const [comunasDisponibles, setComunasDisponibles] = useState([]);
 
   // Cargar usuarios al montar
   const loadUsers = () => {
@@ -51,14 +46,13 @@ function GestionUsuarios() {
     loadUsers();
   }, []);
 
-  // --- Lógica del Modal ---
   const handleCloseModal = () => {
     setShowModal(false);
     setEditingUser(null);
     setFormData(initialFormState);
     setError(null);
     setSuccess(null);
-    setComunasDisponibles([]); // Limpiar comunas
+    setComunasDisponibles([]);
   };
 
   const handleShowCreateModal = () => {
@@ -67,29 +61,27 @@ function GestionUsuarios() {
     setError(null);
     setSuccess(null);
     setShowModal(true);
-    setComunasDisponibles([]); // Limpiar comunas al crear
+    setComunasDisponibles([]);
   };
 
   const handleShowEditModal = (user) => {
-    // No cargamos la contraseña en el formulario de edición por seguridad
     const { password, ...userDataForForm } = user;
     setEditingUser(user);
-    setFormData({ ...initialFormState, ...userDataForForm, password: '' }); // Password vacío por defecto
+    setFormData({ ...initialFormState, ...userDataForForm, password: '' });
     setError(null);
     setSuccess(null);
-    
-    // Poblar comunas si el usuario tiene región
+
     if (userDataForForm.region) {
-        const regionSel = regionesComunas.find(r => r.nombre === userDataForForm.region);
-        setComunasDisponibles(regionSel ? regionSel.comunas : []);
+      const regionSel = regionesComunas.find(r => r.nombre === userDataForForm.region);
+      setComunasDisponibles(regionSel ? regionSel.comunas : []);
     } else {
-        setComunasDisponibles([]);
+      setComunasDisponibles([]);
     }
 
     setShowModal(true);
   };
 
-  // --- Lógica del Formulario ---
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
@@ -99,7 +91,7 @@ function GestionUsuarios() {
       const regionSel = regionesComunas.find(r => r.nombre === value);
       setComunasDisponibles(regionSel ? regionSel.comunas : []);
       // Reseteamos la comuna seleccionada
-      setFormData(prev => ({ ...prev, comuna: '' })); 
+      setFormData(prev => ({ ...prev, comuna: '' }));
     }
   };
 
@@ -114,42 +106,39 @@ function GestionUsuarios() {
       delete dataToSend.password; // No enviar contraseña vacía al actualizar
     }
 
-    // Validaciones básicas (puedes añadir más)
+    // Validaciones básicas
     if (!dataToSend.correo) {
       setError("El correo es obligatorio.");
       return;
     }
     if (!editingUser && !dataToSend.password) {
-        setError("La contraseña es obligatoria al crear un usuario.");
-        return;
+      setError("La contraseña es obligatoria al crear un usuario.");
+      return;
     }
 
 
     try {
       if (editingUser) {
-        // --- Actualizar ---
         await updateUser(editingUser.id, dataToSend);
         setSuccess("Usuario actualizado con éxito.");
       } else {
-        // --- Crear ---
         await createUser(dataToSend);
         setSuccess("Usuario creado con éxito.");
       }
       handleCloseModal();
-      loadUsers(); // Recargar la tabla
+      loadUsers();
     } catch (err) {
       console.error("Error al guardar usuario:", err);
       setError(err.message || "Ocurrió un error al guardar.");
     }
   };
 
-  // --- Lógica de Eliminación ---
   const handleDelete = async (id, nombre) => {
     if (window.confirm(`¿Estás seguro de eliminar al usuario "${nombre}"? Esta acción no se puede deshacer.`)) {
       try {
         await deleteUser(id);
-        alert("Usuario eliminado."); // Usamos alert simple aquí
-        loadUsers(); // Recargar tabla
+        alert("Usuario eliminado.");
+        loadUsers();
       } catch (err) {
         console.error("Error al eliminar usuario:", err);
         alert(err.message || "Error al eliminar el usuario.");
@@ -158,7 +147,6 @@ function GestionUsuarios() {
   };
 
 
-  // --- Renderizado ---
   return (
     <>
       <NavBar />
@@ -170,16 +158,13 @@ function GestionUsuarios() {
           </Button>
         </div>
 
-        {/* Mensaje global de error o éxito (fuera del modal) */}
-        {/* Puedes moverlos si prefieres */}
-
         {loading ? (
           <div className="text-center">
             <div className="spinner-border text-purple" role="status">
               <span className="visually-hidden">Cargando...</span>
             </div>
           </div>
-        ) : error && !showModal ? ( // Mostrar error solo si no estamos en el modal
+        ) : error && !showModal ? (
           <Alert variant="danger">{error}</Alert>
         ) : (
           <div className="table-responsive shadow-sm">
@@ -207,36 +192,36 @@ function GestionUsuarios() {
                     </td>
                     <td>{user.region || '-'}</td>
                     <td>
-                      <Button 
-                        variant="outline-primary" 
-                        size="sm" 
+                      <Button
+                        variant="outline-primary"
+                        size="sm"
                         className="me-2"
                         onClick={() => handleShowEditModal(user)}
                         title="Editar Usuario"
                       >
                         <i className="bi bi-pencil-fill"></i>
                       </Button>
-                      <Button 
-                        variant="outline-danger" 
+                      <Button
+                        variant="outline-danger"
                         size="sm"
                         onClick={() => handleDelete(user.id, `${user.nombre} ${user.apellidos}`)}
                         title="Eliminar Usuario"
                       >
-                         <i className="bi bi-trash3-fill"></i>
+                        <i className="bi bi-trash3-fill"></i>
                       </Button>
                     </td>
                   </tr>
                 )) : (
-                   <tr>
+                  <tr>
                     <td colSpan="6" className="text-center text-muted">No hay usuarios registrados.</td>
-                   </tr> 
+                  </tr>
                 )}
               </tbody>
             </Table>
           </div>
         )}
 
-        {/* --- Modal Crear/Editar --- */}
+        {/* Modal Crear/Editar */}
         <Modal show={showModal} onHide={handleCloseModal} size="lg">
           <Form onSubmit={handleSubmit}>
             <Modal.Header closeButton className="bg-purple text-white">
@@ -245,21 +230,21 @@ function GestionUsuarios() {
             <Modal.Body>
               {/* Mostrar errores específicos del modal */}
               {error && <Alert variant="danger">{error}</Alert>}
-              
+
               {/* Campos del formulario */}
               <div className="row g-3 mb-3">
-                 <div className="col-md-6">
-                    <Form.Group>
-                      <Form.Label>Nombre *</Form.Label>
-                      <Form.Control type="text" name="nombre" value={formData.nombre} onChange={handleChange} required />
-                    </Form.Group>
-                 </div>
-                 <div className="col-md-6">
-                    <Form.Group>
-                      <Form.Label>Apellidos *</Form.Label>
-                      <Form.Control type="text" name="apellidos" value={formData.apellidos} onChange={handleChange} required />
-                    </Form.Group>
-                 </div>
+                <div className="col-md-6">
+                  <Form.Group>
+                    <Form.Label>Nombre *</Form.Label>
+                    <Form.Control type="text" name="nombre" value={formData.nombre} onChange={handleChange} required />
+                  </Form.Group>
+                </div>
+                <div className="col-md-6">
+                  <Form.Group>
+                    <Form.Label>Apellidos *</Form.Label>
+                    <Form.Control type="text" name="apellidos" value={formData.apellidos} onChange={handleChange} required />
+                  </Form.Group>
+                </div>
               </div>
 
               <Form.Group className="mb-3">
@@ -279,7 +264,7 @@ function GestionUsuarios() {
                   <option value="administrador">Administrador</option>
                 </Form.Select>
               </Form.Group>
-              
+
               <hr />
               <h5 className="text-muted mb-3">Información Adicional (Opcional)</h5>
 
@@ -295,22 +280,22 @@ function GestionUsuarios() {
 
               <div className="row g-3 mb-3">
                 <div className="col-md-6">
-                    <Form.Group>
-                        <Form.Label>Región</Form.Label>
-                        <Form.Select name="region" value={formData.region} onChange={handleChange}>
-                            <option value="">Seleccione...</option>
-                            {regionesComunas.map(r => <option key={r.nombre} value={r.nombre}>{r.nombre}</option>)}
-                        </Form.Select>
-                    </Form.Group>
+                  <Form.Group>
+                    <Form.Label>Región</Form.Label>
+                    <Form.Select name="region" value={formData.region} onChange={handleChange}>
+                      <option value="">Seleccione...</option>
+                      {regionesComunas.map(r => <option key={r.nombre} value={r.nombre}>{r.nombre}</option>)}
+                    </Form.Select>
+                  </Form.Group>
                 </div>
                 <div className="col-md-6">
-                    <Form.Group>
-                        <Form.Label>Comuna</Form.Label>
-                        <Form.Select name="comuna" value={formData.comuna} onChange={handleChange} disabled={comunasDisponibles.length === 0}>
-                            <option value="">{formData.region ? 'Seleccione...' : 'Elija región'}</option>
-                            {comunasDisponibles.map(c => <option key={c} value={c}>{c}</option>)}
-                        </Form.Select>
-                    </Form.Group>
+                  <Form.Group>
+                    <Form.Label>Comuna</Form.Label>
+                    <Form.Select name="comuna" value={formData.comuna} onChange={handleChange} disabled={comunasDisponibles.length === 0}>
+                      <option value="">{formData.region ? 'Seleccione...' : 'Elija región'}</option>
+                      {comunasDisponibles.map(c => <option key={c} value={c}>{c}</option>)}
+                    </Form.Select>
+                  </Form.Group>
                 </div>
               </div>
 

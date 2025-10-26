@@ -1,10 +1,8 @@
-// src/data/ordersAPI.js
-
 // --- 1. CLAVE DE LOCALSTORAGE ---
 const ORDERS_STORAGE_KEY = 'orders_db';
 
 // --- 2. DATOS INICIALES (SI LOCALSTORAGE ESTÁ VACÍO) ---
-// Estos son tus pedidos originales.
+// Estos son los pedidos originales.
 const initialOrders = [
   {
     id: 1001,
@@ -13,16 +11,16 @@ const initialOrders = [
     fecha: '2025-10-24T14:30:00Z',
     total: 115000,
     estado: 'Completado',
-    items: [{ id: 2, quantity: 1 }] // Asumiendo que el ID del producto es suficiente aquí
+    items: [{ id: 2, quantity: 1 }] 
   },
   {
     id: 1002,
     clienteId: 2,
     clienteNombre: 'Cliente Prueba',
     fecha: '2025-10-23T10:15:00Z',
-    total: 161000, // Ajusta si el precio cambió
+    total: 161000, 
     estado: 'Completado',
-    items: [{ id: 7, quantity: 1 }, { id: 3, quantity: 1 }] // Asumiendo IDs
+    items: [{ id: 7, quantity: 1 }, { id: 3, quantity: 1 }] 
   },
   {
     id: 1003,
@@ -38,7 +36,7 @@ const initialOrders = [
     clienteId: 2,
     clienteNombre: 'Cliente Prueba',
     fecha: '2025-10-21T18:45:00Z',
-    total: 180000, // Ajusta si el precio cambió (Creed Aventus)
+    total: 180000, 
     estado: 'Completado',
     items: [{ id: 6, quantity: 1 }]
   },
@@ -47,7 +45,7 @@ const initialOrders = [
     clienteId: 2,
     clienteNombre: 'Cliente Prueba',
     fecha: '2025-10-20T11:20:00Z',
-    total: 88000, // Ajusta si el precio cambió (Explorer)
+    total: 88000, 
     estado: 'Cancelado',
     items: [{ id: 9, quantity: 1 }]
   }
@@ -55,9 +53,6 @@ const initialOrders = [
 
 // --- 3. FUNCIONES CRUD USANDO LOCALSTORAGE ---
 
-/**
- * (R)EAD: Leer todos los pedidos desde localStorage
- */
 export const getAllOrders = () => {
   return new Promise((resolve) => {
     // Simulamos un pequeño retraso
@@ -79,15 +74,11 @@ export const getAllOrders = () => {
       // Devolvemos ordenados por fecha, del más nuevo al más viejo
       const sortedOrders = [...orders].sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
       resolve(sortedOrders);
-    }, 800); // Mantenemos el retraso de 800ms
+    }, 800);
   });
 };
 
-/**
- * (C)REATE: Crear un nuevo pedido (similar a createBoleta, pero para 'orders')
- * Necesitarás esta función si quieres añadir pedidos manualmente o desde otro flujo.
- * Adaptada de tu boletasAPI.js (asumiendo que tienes una similar).
- */
+
 export const createOrder = (orderData) => {
   return new Promise(async (resolve, reject) => {
     try {
@@ -117,10 +108,6 @@ export const createOrder = (orderData) => {
 };
 
 
-/**
- * (U)PDATE: Actualizar el estado de un pedido (ejemplo)
- * Puedes crear funciones más específicas si necesitas actualizar otras cosas.
- */
 export const updateOrderStatus = (id, newStatus) => {
     return new Promise(async (resolve, reject) => {
         try {
@@ -146,9 +133,6 @@ export const updateOrderStatus = (id, newStatus) => {
 };
 
 
-/**
- * (D)ELETE: Eliminar un pedido (si es necesario)
- */
 export const deleteOrder = (id) => {
     return new Promise(async (resolve, reject) => {
         try {
@@ -173,9 +157,7 @@ export const deleteOrder = (id) => {
     });
 };
 
-/**
- * (R)EAD: Obtener un pedido por su ID (función extra útil)
- */
+
 export const getOrderById = (id) => {
   return new Promise(async (resolve, reject) => {
     try {

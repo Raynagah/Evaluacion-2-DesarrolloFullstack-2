@@ -1,11 +1,8 @@
-// src/pages/admin/GestionBoletas.js
-
 import React, { useState, useEffect } from 'react';
 import { Accordion } from 'react-bootstrap';
 import { getAllBoletas } from '../../data/boletasAPI';
-import Boleta from '../../components/Boleta'; // Reutilizamos tu componente Boleta
+import Boleta from '../../components/Boleta';
 import NavBar from '../../components/admin/AdminNavbar';
-// Helper para formatear la fecha (puedes moverlo a un archivo utils)
 const formatDateTime = (isoString) => {
   const date = new Date(isoString);
   return date.toLocaleString('es-CL', {
@@ -68,9 +65,6 @@ function GestionBoletas() {
               Fecha: {formatDateTime(boleta.fecha)}
             </Accordion.Header>
             <Accordion.Body>
-              {/* Pasamos la boleta al componente Boleta.
-                  No necesitamos la ref aquí ya que no vamos a imprimir.
-                */}
               <Boleta data={boleta} />
             </Accordion.Body>
           </Accordion.Item>

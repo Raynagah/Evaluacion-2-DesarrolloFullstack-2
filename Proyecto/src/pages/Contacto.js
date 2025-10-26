@@ -48,7 +48,6 @@ function Contacto() {
                     <h5 className="mb-0">Información de Contacto</h5>
                   </div>
                   <div className="card-body">
-                    {/* Nota: Los íconos (<i>) funcionarán si tienes Font Awesome cargado en tu public/index.html */}
                     <div className="d-flex align-items-start mb-3">
                       <div className="me-3 fs-5 text-purple"><i className="fas fa-map-marker-alt"></i></div>
                       <div>

@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
-import { Image, Button, Form, Alert } from 'react-bootstrap'; // Importar componentes necesarios
+import { Image, Button, Form, Alert } from 'react-bootstrap';
 import '../styles/carrito.css';
 
 function Carrito() {
-  // Asumimos que useCart ahora devuelve items con la propiedad 'stock'
-  // ej: { id: 1, name: 'Perfume', price: 50000, quantity: 2, image: '...', stock: 10 }
   const { cartItems, updateQuantity, removeFromCart, clearCart } = useCart();
   const [summary, setSummary] = useState({ subtotal: 0, envio: 0, total: 0 });
 
@@ -21,7 +19,6 @@ function Carrito() {
     return new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP' }).format(value);
   };
 
-  // --- ¡CORRECCIÓN AQUÍ! ---
   const handleQuantityChange = (id, newQuantity, stock) => {
     // 1. Convertir a número y asegurar que sea al menos 1
     let qty = parseInt(newQuantity, 10) || 1;
@@ -39,7 +36,6 @@ function Carrito() {
     // 3. Actualizar la cantidad en el contexto
     updateQuantity(id, qty);
   };
-  // --- FIN CORRECCIÓN ---
 
   const handleRemoveItem = (id) => {
     removeFromCart(id);
@@ -107,7 +103,6 @@ function Carrito() {
                           value={item.quantity}
                           onChange={(e) => handleQuantityChange(item.id, e.target.value, item.stock)}
                           min="1"
-                          // --- ¡CORRECCIÓN AQUÍ! ---
                           max={item.stock} // Establecer el máximo según el stock
                           className="mx-2 text-center quantity-input"
                           style={{ width: '60px' }}
@@ -117,7 +112,6 @@ function Carrito() {
                           variant="outline-secondary"
                           size="sm"
                           onClick={() => handleQuantityChange(item.id, item.quantity + 1, item.stock)}
-                          // --- ¡CORRECCIÓN AQUÍ! ---
                           disabled={item.stock !== undefined && item.quantity >= item.stock} // Deshabilitar si se alcanza el stock
                           aria-label="Aumentar cantidad"
                         >

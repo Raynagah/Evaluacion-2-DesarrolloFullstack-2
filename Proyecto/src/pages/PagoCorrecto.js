@@ -1,7 +1,5 @@
-import React, { useState } from 'react'; // <--- Quitamos useRef, useCallback, useMemo, useEffect
+import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-// import { useReactToPrint } from 'react-to-print'; // <--- Quitamos esto
-// import Boleta from '../components/Boleta'; // <--- Quitamos esto
 import '../styles/pago.css';
 
 function PagoCorrecto() {
@@ -12,13 +10,7 @@ function PagoCorrecto() {
 
   const [emailMessage, setEmailMessage] = useState(null); 
 
-  // --- Quitamos toda la lógica de useReactToPrint ---
-  // const boletaRef = useRef();
-  // const handlePrint = ...
-  // const handlePrintClick = ...
-  // etc.
-
-  // Función de email simulada (se queda igual)
+  // Función de email simulada
   const handleSendEmail = () => {
     if (!boletaData) return;
     const emailDestino = window.prompt(
@@ -33,20 +25,11 @@ function PagoCorrecto() {
     }
   };
 
-  // El console.log que teníamos para depurar también se va
-  // console.log("Datos de la boleta recibidos:", boletaData);
-
   return (
     <div className="container my-5 text-center pago-container">
       <div className="row justify-content-center">
         <div className="col-md-8">
           <div className="card shadow-lg p-4">
-            
-            {/* --- Quitamos la Boleta oculta --- */}
-            {/* <div className="d-none" ref={boletaRef}>
-              <Boleta data={boletaData} />
-            </div> 
-            */}
 
             <div className="card-body">
               <i className="bi bi-patch-check-fill text-success display-1"></i>
@@ -73,9 +56,8 @@ function PagoCorrecto() {
               <div className="d-grid gap-3 d-md-flex justify-content-md-center mt-3">
                 {/* Botón de Imprimir ahora no hace nada (o podemos ocultarlo) */}
                 <button
-                  // onClick={handlePrint} // <--- Quitamos el onClick
                   className="btn btn-purple btn-lg"
-                  disabled // <--- Lo dejamos deshabilitado por ahora
+                  disabled
                 >
                   <i className="bi bi-printer-fill me-2"></i>
                   Imprimir Boleta (Deshabilitado)

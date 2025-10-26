@@ -1,14 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-
-// Componentes reutilizables
 import FeaturedProducts from '../components/FeaturedProducts'; 
-
-// Importamos los estilos que creamos
 import '../styles/categorias.css'; 
 
 const Categorias = () => {
-    // --- Lista de categorías ---
+    // Lista de categorías
   const listaDeCategorias = [
     { id: 'perfumes-varon', nombre: 'Perfumes Varón' },
     { id: 'perfumes-dama', nombre: 'Perfumes Dama' },
@@ -20,17 +16,10 @@ const Categorias = () => {
       
       <h1 className="page-title">Explora nuestras Categorías</h1>
       <p className="text-center mb-5">Encuentra la fragancia perfecta para cada ocasión.</p>
-      
-      {/* Usamos 'justify-content-center' para centrar las 3 tarjetas
-        si no ocupan toda la fila.
-      */}
       <div className="row g-4 justify-content-center">
         {listaDeCategorias.map((categoria) => (
-          
-          // Ajustamos a 'col-lg-4' y 'col-md-6' para mejor responsividad
           <div className="col-lg-4 col-md-6" key={categoria.id}>
             
-            {/* El Link ahora usa el 'id' de la nueva categoría */}
             <Link 
               to={`/tienda?categoria=${categoria.id}`} 
               className="card card-categoria text-center text-decoration-none"
@@ -44,7 +33,7 @@ const Categorias = () => {
         ))}
       </div>
 
-      {/* --- Sección de Destacados (opcional) --- */}
+      {/* Sección de Destacados */}
       <hr className="my-5" />
       <div className="mt-5">
         <FeaturedProducts />

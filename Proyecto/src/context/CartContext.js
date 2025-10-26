@@ -62,7 +62,6 @@ export const CartProvider = ({ children }) => {
     });
     // Solo mostrar alerta de éxito si se pudo añadir o incrementar
     // (Podríamos mejorar esto para no mostrarla si el stock ya estaba al máximo)
-    // alert(`Has añadido ${product.name} al carrito.`); // Considera quitar esta alerta general
   };
 
   // --- 7. Funciones para actualizar (CON VALIDACIÓN DE STOCK), eliminar y vaciar ---
@@ -81,7 +80,7 @@ export const CartProvider = ({ children }) => {
             alert(`Solo quedan ${stockDisponible} unidades de ${item.name}.`);
             return { ...item, quantity: stockDisponible };
           }
-          // Si qty < 1, no hacer nada (o podrías remover el item)
+          // Si qty < 1, no hacer nada
           return item; // Devolver item sin cambios si la cantidad no es válida
         }
         return item; // Devolver otros items sin cambios
@@ -92,14 +91,11 @@ export const CartProvider = ({ children }) => {
   const removeFromCart = (id) => {
     setCartItems(items => items.filter(item => item.id !== id));
   };
-
   const clearCart = () => {
     setCartItems([]);
   };
-
   // 8. Valor derivado: contador total de ítems (sin cambios)
   const cartCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
-
   // 9. Valores que el proveedor ofrecerá (sin cambios)
   const value = {
     cartItems,

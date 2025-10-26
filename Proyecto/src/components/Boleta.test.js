@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import Boleta from './Boleta'; // El componente a probar
+import Boleta from './Boleta';
 
 describe('Pruebas de Renderizado de Listas (Boleta)', () => {
 
@@ -31,7 +31,7 @@ describe('Pruebas de Renderizado de Listas (Boleta)', () => {
     }
   };
 
-  // Tarea: Pruebas de Renderizado (Listas)
+  // Tarea: Pruebas de Renderizado 
   it('debe renderizar todos los elementos de la lista de items', () => {
     // 2. Renderizamos el componente pasándole los datos (props)
     render(<Boleta data={mockBoletaData} />);
@@ -54,6 +54,6 @@ describe('Pruebas de Renderizado de Listas (Boleta)', () => {
     const filasDeItems = cuerpoTabla.querySelectorAll('tr');
     
     // Verificamos que el número de filas sea igual al de nuestros datos
-    expect(filasDeItems.length).toBe(mockBoletaData.items.length); // Esperamos 3
+    expect(filasDeItems.length).toBe(mockBoletaData.items.length);
   });
 });

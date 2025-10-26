@@ -1,5 +1,3 @@
-// src/pages/Comprar.js
-
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
@@ -7,8 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { regionesComunas } from '../data/regionesComunas';
 import '../styles/comprar.css';
 import { createBoleta } from '../data/boletasAPI';
-// --- ¡IMPORTANTE! Importar funciones de productsAPI ---
-import { updateProduct, getProductById } from '../data/productsAPI'; // <--- AÑADIR ESTO
+import { updateProduct, getProductById } from '../data/productsAPI';
 
 function Comprar() {
   const { cartItems, clearCart } = useCart();
@@ -22,10 +19,8 @@ function Comprar() {
   const [errors, setErrors] = useState({});
   const [summary, setSummary] = useState({ subtotal: 0, envio: 0, total: 0 });
   const [comunasDisponibles, setComunasDisponibles] = useState([]);
-  // --- Añadir estado de carga para el botón ---
   const [loading, setLoading] = useState(false);
 
-  // (useEffect para calcular resumen - sin cambios)
   useEffect(() => {
     const subtotal = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
     const envio = subtotal > 50000 ? 0 : 4500;
@@ -33,46 +28,43 @@ function Comprar() {
     setSummary({ subtotal, envio, total });
   }, [cartItems]);
 
-  // (useEffect para autocompletar - sin cambios)
   useEffect(() => {
     if (currentUser) {
-        setFormData(prev => ({
-            ...prev,
-            nombre: currentUser.nombre || '',
-            apellidos: currentUser.apellidos || '',
-            correo: currentUser.email || currentUser.correo || '', // Usa email o correo
-            calle: currentUser.calle || '',
-            region: currentUser.region || '',
-            comuna: currentUser.comuna || '',
-            departamento: currentUser.departamento || ''
-        }));
-        if (currentUser.region) {
-            const regionEncontrada = regionesComunas.find(r => r.nombre === currentUser.region);
-            if (regionEncontrada) {
-                setComunasDisponibles(regionEncontrada.comunas);
-            }
+      setFormData(prev => ({
+        ...prev,
+        nombre: currentUser.nombre || '',
+        apellidos: currentUser.apellidos || '',
+        correo: currentUser.email || currentUser.correo || '',
+        calle: currentUser.calle || '',
+        region: currentUser.region || '',
+        comuna: currentUser.comuna || '',
+        departamento: currentUser.departamento || ''
+      }));
+      if (currentUser.region) {
+        const regionEncontrada = regionesComunas.find(r => r.nombre === currentUser.region);
+        if (regionEncontrada) {
+          setComunasDisponibles(regionEncontrada.comunas);
         }
+      }
     }
   }, [currentUser]);
 
-  // (handleChange - sin cambios)
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
     if (name === 'region') {
-        const regionEncontrada = regionesComunas.find(r => r.nombre === value);
-        if (regionEncontrada) {
-            setComunasDisponibles(regionEncontrada.comunas);
-            setFormData(prev => ({ ...prev, comuna: '' }));
-        } else {
-            setComunasDisponibles([]);
-            setFormData(prev => ({ ...prev, comuna: '' }));
-        }
+      const regionEncontrada = regionesComunas.find(r => r.nombre === value);
+      if (regionEncontrada) {
+        setComunasDisponibles(regionEncontrada.comunas);
+        setFormData(prev => ({ ...prev, comuna: '' }));
+      } else {
+        setComunasDisponibles([]);
+        setFormData(prev => ({ ...prev, comuna: '' }));
+      }
     }
     if (errors[name]) { setErrors(prev => ({ ...prev, [name]: null })); }
   };
 
-  // (validateForm - sin cambios)
   const validateForm = () => {
     const newErrors = {};
     if (!formData.nombre) newErrors.nombre = 'El nombre es obligatorio.';
@@ -82,21 +74,20 @@ function Comprar() {
     if (!formData.region) newErrors.region = 'La región es obligatoria.';
     if (!formData.comuna) newErrors.comuna = 'La comuna es obligatoria.';
     if (formData.correo && !/\S+@\S+\.\S+/.test(formData.correo)) {
-        newErrors.correo = 'Correo inválido.';
+      newErrors.correo = 'Correo inválido.';
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  // --- MODIFICAR handleProcederAlPago ---
-  const handleProcederAlPago = async (e) => { // <-- Añadir async aquí
+  const handleProcederAlPago = async (e) => {
     e.preventDefault();
     if (loading) return; // Evitar doble clic
     setErrors({});
-    setLoading(true); // <-- Marcar como cargando
+    setLoading(true);
 
     if (validateForm()) {
-      const isPaymentSuccessful = Math.random() < 0.95; // Simulación
+      const isPaymentSuccessful = Math.random() < 0.95;
 
       if (isPaymentSuccessful) {
         const fechaCompra = new Date();
@@ -105,7 +96,6 @@ function Comprar() {
           numero: boletaNumero,
           fecha: fechaCompra.toISOString(),
           cliente: formData,
-          // Guardamos solo la info necesaria en la boleta
           items: cartItems.map(item => ({
             id: item.id,
             name: item.name,
@@ -120,7 +110,6 @@ function Comprar() {
           await createBoleta(dataParaBoleta);
           console.log("Boleta guardada.");
 
-          // --- 2. ACTUALIZAR STOCK DE PRODUCTOS ---
           console.log("Actualizando stock...");
           // Creamos un array de promesas, una por cada item a actualizar
           const stockUpdatePromises = cartItems.map(async (item) => {
@@ -136,15 +125,12 @@ function Comprar() {
             } catch (stockError) {
               // Manejar error si un producto no se encuentra o no se puede actualizar
               console.error(`Error al actualizar stock para producto ID ${item.id}:`, stockError);
-              // Podrías decidir lanzar el error si es crítico para detener todo
-              // throw stockError;
             }
           });
 
           // Esperamos a que TODAS las actualizaciones de stock terminen
           await Promise.all(stockUpdatePromises);
           console.log("Actualización de stock completada.");
-          // --- FIN ACTUALIZACIÓN STOCK ---
 
           // 3. Limpiar el carrito
           clearCart();
@@ -158,7 +144,6 @@ function Comprar() {
               nombre: formData.nombre
             }
           });
-          // No necesitamos setLoading(false) aquí porque el componente se desmonta
 
         } catch (error) {
           // Captura errores de createBoleta o de las actualizaciones de stock si se lanzan
@@ -182,7 +167,7 @@ function Comprar() {
   };
 
 
-  // --- Renderizado ---
+  // Renderizado 
   const formatCurrency = (value) => new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP' }).format(value);
 
   if (cartItems.length === 0) {
@@ -199,17 +184,13 @@ function Comprar() {
       <div className="container">
         <h2 className="text-center mb-5 text-purple">Finalizar Compra</h2>
         <div className="row g-5">
-
-          {/* === COLUMNA 1: FORMULARIO === */}
           <div className="col-lg-7">
-            {/* Usamos el estado 'loading' en el botón */}
             <form onSubmit={handleProcederAlPago}>
               {/* --- Tarjeta de Información del Cliente --- */}
               <h4 className="mb-3 text-purple">Información del Cliente</h4>
               <div className="card shadow-sm border-0 mb-4">
                 <div className="card-body p-4">
                   <div className="row g-3">
-                    {/* ... campos nombre, apellidos, correo ... */}
                     <div className="col-sm-6">
                       <label htmlFor="nombre" className="form-label">Nombre<span className="text-danger"> *</span></label>
                       <input type="text" className={`form-control ${errors.nombre ? 'is-invalid' : ''}`} id="nombre" name="nombre" value={formData.nombre} onChange={handleChange} />
@@ -234,7 +215,6 @@ function Comprar() {
               <div className="card shadow-sm border-0 mb-4">
                 <div className="card-body p-4">
                   <div className="row g-3">
-                    {/* ... campos calle, depto, region, comuna, indicaciones ... */}
                     <div className="col-12">
                       <label htmlFor="calle" className="form-label">Calle y Número<span className="text-danger"> *</span></label>
                       <input type="text" className={`form-control ${errors.calle ? 'is-invalid' : ''}`} id="calle" name="calle" placeholder="Ej: Av. Principal 123" value={formData.calle} onChange={handleChange} />
@@ -276,13 +256,12 @@ function Comprar() {
               </div>
 
               {/* --- Botones de Acción --- */}
-              <div className="d-grid gap-2 mt-4"> {/* Añadido margen */}
+              <div className="d-grid gap-2 mt-4">
                 <button
                   type="submit"
                   className="btn btn-purple btn-lg"
-                  disabled={loading} // <-- Deshabilitar mientras carga
+                  disabled={loading}
                 >
-                  {/* Cambiar texto mientras carga */}
                   {loading ? 'Procesando Pago...' : 'Proceder al Pago'}
                 </button>
                 <Link to="/carrito" className="btn btn-outline-secondary btn-sm">Volver al Carrito</Link>
@@ -290,11 +269,9 @@ function Comprar() {
             </form>
           </div>
 
-          {/* === COLUMNA 2: RESUMEN DE COMPRA (sin cambios) === */}
           <div className="col-lg-5">
-             {/* ... Tu código de resumen ... */}
             <h4 className="mb-3 text-purple">Resumen de tu Compra</h4>
-            <div className="card shadow-sm border-0 sticky-top" style={{ top: '2rem' }}>
+            <div className="card shadow-sm border-0 " >
               <div className="card-header bg-purple text-white">Detalle de los Productos</div>
               <ul className="list-group list-group-flush">
                 {cartItems.map(item => (

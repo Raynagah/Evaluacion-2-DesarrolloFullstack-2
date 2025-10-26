@@ -12,7 +12,6 @@ function HeroSection() {
             <a href="/tienda" className="btn btn-purple btn-lg">Explorar Productos</a>
           </div>
           <div className="col-md-6 text-center">
-            {/* Nota cómo se importa y usa la imagen local y se cambia el style */}
             <img 
               src="/assets/gifs/video_polo_blue.gif" 
               alt="Animación de perfume" 

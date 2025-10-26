@@ -1,7 +1,6 @@
 import React from 'react';
-import ProductCard from './ProductCard'; // Importamos el componente reutilizable
+import ProductCard from './ProductCard';
 
-// Datos de ejemplo. En un futuro, esto vendría de una API.
 const products = [
   {
     imageUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR809Q4Aq9sAyaug7uoTFzyiVPUIvCllt76Vw&s',
@@ -29,7 +28,6 @@ function FeaturedProducts() {
       <div className="container">
         <h2 className="text-center mb-5 text-purple">Productos Destacados</h2>
         <div className="row g-4">
-          {/* Usamos .map() para crear un ProductCard por cada producto en nuestros datos */}
           {products.map((product, index) => (
             <ProductCard
               key={index}
