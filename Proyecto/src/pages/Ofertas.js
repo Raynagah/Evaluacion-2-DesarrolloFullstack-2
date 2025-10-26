@@ -1,71 +1,42 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext'; 
 import { getAllProducts } from '../data/productsAPI'; 
 import '../styles/tienda.css';
 
-// --- CAMBIO AQUÍ ---
-// 1. Movemos la constante FUERA del componente.
-// Ahora es una constante a nivel de módulo y no se vuelve a crear.
-const titulosDeCategoria = {
-  'perfumes-varon': 'Perfumes Varón',
-  'perfumes-dama': 'Perfumes Dama',
-  'perfumes-unisex': 'Perfumes Unisex',
-};
-// --------------------
-
-function Tienda() {
-  const [searchParams] = useSearchParams();
-
-  const [productos, setProductos] = useState([]);
+function Ofertas() {
+  const [productosEnOferta, setProductosEnOferta] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [productosFiltrados, setProductosFiltrados] = useState([]);
-  const [titulo, setTitulo] = useState('Nuestros Perfumes');
-  
   const { addToCart } = useCart(); 
 
-  // Este useEffect para cargar productos está perfecto.
   useEffect(() => {
+    // 1. Obtenemos TODOS los productos
     getAllProducts()
       .then(data => {
-        setProductos(data); 
+        // 2. FILTRAMOS solo los que están en oferta
+        const enOferta = data.filter(
+          (producto) => producto.price < producto.normalPrice
+        );
+        
+        // 3. Guardamos solo los productos filtrados en el estado
+        setProductosEnOferta(enOferta);
       })
       .catch(error => {
-        console.error("Error al cargar productos:", error);
+        console.error("Error al cargar productos en oferta:", error);
       })
       .finally(() => {
         setLoading(false);
       });
-  }, []); 
-
-  // --- CAMBIO AQUÍ ---
-  // 2. Este useEffect (el de la línea 70) ya no necesita 'titulosDeCategoria' 
-  // en sus dependencias, porque la variable ahora es externa.
-  useEffect(() => {
-    const categoriaSeleccionada = searchParams.get('categoria');
-
-    if (categoriaSeleccionada && productos.length > 0) {
-      const filtrados = productos.filter(
-        (producto) => producto.categoriaId === categoriaSeleccionada
-      );
-      
-      setProductosFiltrados(filtrados); 
-      setTitulo(titulosDeCategoria[categoriaSeleccionada] || 'Tienda'); 
-
-    } else {
-      setProductosFiltrados(productos);
-      setTitulo('Nuestros Perfumes');
-    }
-
-  }, [productos, searchParams]); // <-- La advertencia desaparece
+  }, []); // Se ejecuta solo una vez al cargar la página
 
   
   const formatCurrency = (value) => new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP' }).format(value);
 
+  // Mensaje de Carga
   if (loading) {
     return (
       <div className="container text-center my-5 py-5">
-        <h2 className="text-purple">Cargando Productos...</h2>
+        <h2 className="text-purple">Buscando Ofertas...</h2>
         <div className="spinner-border text-purple" role="status">
           <span className="visually-hidden">Loading...</span>
         </div>
@@ -73,17 +44,19 @@ function Tienda() {
     );
   }
 
+  // Renderizado de la página
   return (
     <section className="py-5">
       <div className="container">
-        <h2 className="text-center mb-5 text-purple">{titulo}</h2>
+        <h2 className="text-center mb-5 text-purple">🔥 Perfumes en Oferta</h2>
         
         <div className="row g-4">
           
-          {productosFiltrados.length > 0 ? (
+          {productosEnOferta.length > 0 ? (
             
-            productosFiltrados.map(producto => (
+            productosEnOferta.map(producto => (
               <div key={producto.id} className="col-lg-4 col-md-6">
+                {/* Usamos las mismas clases y estructura que en Tienda.js */}
                 <div className="card h-100 shadow-sm border-0 product-card"> 
                   <Link to={`/producto/${producto.id}`}>
                     <img src={producto.image} className="card-img-top" alt={producto.name} />
@@ -94,7 +67,14 @@ function Tienda() {
                         {producto.name}
                       </Link>
                     </h5>
-                    <p className="card-text h4 text-muted">{formatCurrency(producto.price)}</p>
+                    
+                    {/* Mostramos ambos precios */}
+                    <p className="card-text h4 text-danger mb-0">
+                      {formatCurrency(producto.price)}
+                    </p>
+                    <p className="card-text text-muted text-decoration-line-through">
+                      Precio normal: {formatCurrency(producto.normalPrice)}
+                    </p>
                     
                     <button 
                       onClick={() => addToCart(producto)} 
@@ -107,9 +87,10 @@ function Tienda() {
               </div>
             ))
           ) : (
+            // Mensaje si no se encuentran ofertas
             <div className="col-12 text-center">
-              <h4 className="text-muted">No se encontraron productos en esta categoría.</h4>
-              <p>Puedes explorar nuestras otras <Link to="/categorias">categorías</Link>.</p>
+              <h4 className="text-muted">¡Vaya! No encontramos ofertas por el momento.</h4>
+              <p>Vuelve a visitarnos pronto o explora nuestra <Link to="/tienda">tienda completa</Link>.</p>
             </div>
           )}
         </div>
@@ -118,4 +99,4 @@ function Tienda() {
   );
 }
 
-export default Tienda;
+export default Ofertas;

@@ -66,7 +66,7 @@ function Navbar() {
           <img src="https://cdn-icons-png.flaticon.com/512/775/775307.png" alt="Logo" height="40" />
           <span>Inicio</span>
         </Link>
-        
+
         {/* Lógica de bienvenida y Login/Logout */}
         {isAuthenticated && currentUser ? (
           <span className="navbar-text text-white ms-3">
@@ -86,13 +86,15 @@ function Navbar() {
           <ul className="navbar-nav ms-auto">
             <li className="nav-item"><NavLink className="nav-link" to="/">Inicio</NavLink></li>
             <li className="nav-item"><NavLink className="nav-link" to="/tienda">Tienda</NavLink></li>
+            <li className="nav-item"><NavLink className="nav-link" to="/categorias">Categorías</NavLink></li>
+            <li className="nav-item"><NavLink className="nav-link text-danger fw-bold" to="/ofertas">Ofertas 🔥</NavLink></li>
             <li className="nav-item"><NavLink className="nav-link" to="/blogs">Blogs</NavLink></li>
-            
+
             <li className="nav-item">
               <NavLink className="nav-link" to="/carrito">
-                Carrito 
+                Carrito
                 {cartCount > 0 && (
-                  <span className="badge bg-danger ms-1">{cartCount}</span> 
+                  <span className="badge bg-danger ms-1">{cartCount}</span>
                 )}
               </NavLink>
             </li>
