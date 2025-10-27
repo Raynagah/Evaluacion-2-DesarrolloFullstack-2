@@ -13,7 +13,7 @@ const LOW_STOCK_THRESHOLD = 10;
 function AdminDashboard() {
   const [stats, setStats] = useState({
     ventasTotales: 0,
-    totalBoletas: 0, 
+    totalBoletas: 0,
     totalClientes: 0,
     stockTotal: 0
   });
@@ -51,8 +51,8 @@ function AdminDashboard() {
 
         // Procesar bajo stock
         const bajoStock = productsData
-            .filter(p => (parseInt(p.stock, 10) || 0) < LOW_STOCK_THRESHOLD) // Asegurar número
-            .sort((a, b) => (parseInt(a.stock, 10) || 0) - (parseInt(b.stock, 10) || 0)); // Asegurar número
+          .filter(p => (parseInt(p.stock, 10) || 0) < LOW_STOCK_THRESHOLD) // Asegurar número
+          .sort((a, b) => (parseInt(a.stock, 10) || 0) - (parseInt(b.stock, 10) || 0)); // Asegurar número
         setLowStockProducts(bajoStock);
 
       } catch (error) {
@@ -80,16 +80,16 @@ function AdminDashboard() {
 
 
   if (loading) {
-     return (
-        <>
-          <NavBar />
-          <div className="d-flex justify-content-center align-items-center" style={{ height: '80vh' }}>
-            <Spinner animation="border" variant="purple" role="status">
-              <span className="visually-hidden">Cargando...</span>
-            </Spinner>
-          </div>
-        </>
-     );
+    return (
+      <>
+        <NavBar />
+        <div className="d-flex justify-content-center align-items-center" style={{ height: '80vh' }}>
+          <Spinner animation="border" variant="purple" role="status">
+            <span className="visually-hidden">Cargando...</span>
+          </Spinner>
+        </div>
+      </>
+    );
   }
 
   return (
@@ -183,32 +183,41 @@ function AdminDashboard() {
 
           {/* Columna Derecha */}
           <div className="col-lg-4">
-             {/* Tarjeta Gestión Rápida */}
-             <div className="card shadow-sm border-0 mb-4">
-                <div className="card-header bg-purple text-white"><h5 className="mb-0">Gestión Rápida</h5></div>
-                <div className="card-body"><div className="d-grid gap-2">{/* ... Links ... */}</div></div>
-             </div>
-             {/* Tarjeta Bajo Stock */}
-             <div className="card shadow-sm border-0">
-                 <div className="card-header bg-warning text-dark"><h5 className="mb-0">¡Productos con Stock Crítico!</h5></div>
-                 <div className="card-body p-0">
-                     <div className="table-responsive">
-                        <table className="table table-hover mb-0">
-                           <thead><tr><th>Producto</th><th className="text-end">Stock</th></tr></thead>
-                           <tbody>
-                             {lowStockProducts.length > 0 ? lowStockProducts.map(product => (
-                               <tr key={product.id}>
-                                 <td><Link to={`/admin/producto/editar/${product.id}`} title={`Editar ${product.name}`}>{product.name}</Link></td>
-                                 <td className="text-end"><span className="fw-bold text-danger">{product.stock}</span></td>
-                               </tr>
-                             )) : (
-                                <tr><td colSpan="2" className="text-center text-muted py-3">No hay productos con bajo stock.</td></tr>
-                             )}
-                           </tbody>
-                        </table>
-                     </div>
-                 </div>
+            {/* Tarjeta Gestión Rápida */}
+            <div className="card shadow-sm border-0 mb-4">
+              <div className="card-header bg-purple text-white"><h5 className="mb-0">Gestión Rápida</h5></div>
+              <div className="card-body"><div className="d-grid gap-2">
+                <div className="card-body">
+                  <div className="d-grid gap-2">
+                    <Link to="/admin/productos" className="btn btn-outline-purple">Gestionar Productos</Link>
+                    <Link to="/admin/boletas" className="btn btn-outline-purple">Ver Boletas</Link>
+                    <Link to="/admin/usuarios" className="btn btn-outline-purple">Gestionar Usuarios</Link>
+                  </div>
+                </div>
+              </div></div>
+
+            </div>
+            {/* Tarjeta Bajo Stock */}
+            <div className="card shadow-sm border-0">
+              <div className="card-header bg-warning text-dark"><h5 className="mb-0">¡Productos con Stock Crítico!</h5></div>
+              <div className="card-body p-0">
+                <div className="table-responsive">
+                  <table className="table table-hover mb-0">
+                    <thead><tr><th>Producto</th><th className="text-end">Stock</th></tr></thead>
+                    <tbody>
+                      {lowStockProducts.length > 0 ? lowStockProducts.map(product => (
+                        <tr key={product.id}>
+                          <td><Link to={`/admin/producto/editar/${product.id}`} title={`Editar ${product.name}`}>{product.name}</Link></td>
+                          <td className="text-end"><span className="fw-bold text-danger">{product.stock}</span></td>
+                        </tr>
+                      )) : (
+                        <tr><td colSpan="2" className="text-center text-muted py-3">No hay productos con bajo stock.</td></tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
               </div>
+            </div>
           </div>
 
         </div>

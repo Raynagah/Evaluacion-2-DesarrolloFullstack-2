@@ -1,4 +1,3 @@
-
 import React from 'react';
 
 import { Routes, Route } from 'react-router-dom';
@@ -43,9 +42,7 @@ function App() {
   return (
     <AuthProvider>
       <CartProvider>
-        {/* 2. YA NO ESTÁ EL <BrowserRouter> AQUÍ */}
         <Routes>
-
           {/* --- GRUPO 1: RUTAS PÚBLICAS (Con MainLayout) --- */}
           <Route path="/" element={<MainLayout />}>
             <Route index element={<Inicio />} />
@@ -84,9 +81,7 @@ function App() {
             <Route path="perfil" element={<AdminPerfil />} />
             <Route path="reportes" element={<AdminReportes />} />
           </Route>
-
         </Routes>
-        {/* 2. NI AQUÍ */}
       </CartProvider>
     </AuthProvider>
   );

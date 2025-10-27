@@ -21,8 +21,8 @@ describe('Pruebas de Renderizado de Listas (Boleta)', () => {
     // La lista que queremos probar:
     items: [
       { id: 1, name: 'Perfume Caro', quantity: 1, price: 50000 },
-      { id: 2, name: 'Crema de Manos', quantity: 2, price: 5000 },
-      { id: 3, name: 'Jabón Líquido', quantity: 1, price: 2500 },
+      { id: 2, name: 'Perfume Casi Caro', quantity: 2, price: 5000 },
+      { id: 3, name: 'Perfume Barato', quantity: 1, price: 2500 },
     ],
     resumen: {
       subtotal: 62500,
@@ -42,10 +42,10 @@ describe('Pruebas de Renderizado de Listas (Boleta)', () => {
     expect(screen.getByText('Perfume Caro')).not.toBeNull();
     
     // Buscamos el texto del segundo producto
-    expect(screen.getByText('Crema de Manos')).not.toBeNull();
+    expect(screen.getByText('Perfume Casi Caro')).not.toBeNull();
     
     // Buscamos el texto del tercer producto
-    expect(screen.getByText('Jabón Líquido')).not.toBeNull();
+    expect(screen.getByText('Perfume Barato')).not.toBeNull();
 
     // 4. (Forma más avanzada) Verificamos la cantidad de filas
     // Buscamos la tabla, luego su 'tbody', y contamos sus 'tr' (filas)

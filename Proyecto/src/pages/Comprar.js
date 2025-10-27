@@ -87,7 +87,7 @@ function Comprar() {
     setLoading(true);
 
     if (validateForm()) {
-      const isPaymentSuccessful = Math.random() < 0.95;
+      const isPaymentSuccessful = Math.random() < 0.95; // Simulación de pago
 
       if (isPaymentSuccessful) {
         const fechaCompra = new Date();
@@ -111,19 +111,21 @@ function Comprar() {
           console.log("Boleta guardada.");
 
           console.log("Actualizando stock...");
-          // Creamos un array de promesas, una por cada item a actualizar
+          // 2. Actualizar stock para cada producto
           const stockUpdatePromises = cartItems.map(async (item) => {
             try {
               // Obtenemos el producto actual para saber su stock
               const productoActual = await getProductById(item.id);
-              const stockActual = parseInt(productoActual.stock, 10) || 0; // Aseguramos que sea número
+              const stockActual = parseInt(productoActual.stock, 10) || 0; 
               const nuevoStock = stockActual - item.quantity;
-              // Actualizamos el producto con el nuevo stock
-              // Usamos { stock: ... } para actualizar solo ese campo
-              await updateProduct(item.id, { stock: nuevoStock < 0 ? 0 : nuevoStock }); // Evita stock negativo
+
+              await updateProduct(item.id, { 
+                ...productoActual, 
+                stock: nuevoStock < 0 ? 0 : nuevoStock 
+              }); 
+
               console.log(`Stock actualizado para producto ID ${item.id}: ${nuevoStock}`);
             } catch (stockError) {
-              // Manejar error si un producto no se encuentra o no se puede actualizar
               console.error(`Error al actualizar stock para producto ID ${item.id}:`, stockError);
             }
           });
@@ -146,22 +148,21 @@ function Comprar() {
           });
 
         } catch (error) {
-          // Captura errores de createBoleta o de las actualizaciones de stock si se lanzan
           console.error("Error en el proceso de pago/guardado:", error);
-          setLoading(false); // Permitir reintento si falla algo
+          setLoading(false); 
           navigate('/pago-error', { state: { message: error.message || "Error al procesar la compra." } });
         }
 
       } else {
         // Si la simulación de pago falla
         console.log("Simulación de pago fallida.");
-        setLoading(false); // Permitir reintento
+        setLoading(false); 
         navigate('/pago-error');
       }
     } else {
       // Si la validación del formulario falla
       console.log('Errores de validación', errors);
-      setLoading(false); // Permitir corregir y reintentar
+      setLoading(false); 
       alert("Por favor, corrige los errores marcados en el formulario.");
     }
   };
@@ -271,7 +272,10 @@ function Comprar() {
 
           <div className="col-lg-5">
             <h4 className="mb-3 text-purple">Resumen de tu Compra</h4>
-            <div className="card shadow-sm border-0 " >
+            <div 
+              className="card shadow-sm border-0 sticky-top" 
+              style={{ top: '5rem', zIndex: 1010 }}
+            >
               <div className="card-header bg-purple text-white">Detalle de los Productos</div>
               <ul className="list-group list-group-flush">
                 {cartItems.map(item => (
